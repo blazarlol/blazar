@@ -1,9 +1,6 @@
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
+import { userRoutes } from "./routes/users";
 
-const app = new Elysia().get("/", () => "Hello Elysia").listen(8080);
+const app = new Elysia();
 
-console.log(
-  `🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`
-);
-
-("test");
+app.group("/api", (app) => app.use(userRoutes)).listen(8080);
