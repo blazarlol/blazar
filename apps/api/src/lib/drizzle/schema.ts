@@ -1,1 +1,6 @@
-export { userTable, accountTable } from "@blazar/drizzle";
+export {
+  userTable,
+  sessionTable,
+  accountTable,
+  emailVerificationTable,
+} from "@blazar/drizzle";

@@ -13,13 +13,18 @@
   },
   "dependencies": {
     "@blazar/drizzle": "workspace:packages/drizzle",
+    "@elysiajs/eden": "^1.0.13",
+    "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@neondatabase/serverless": "^0.9.3",
     "@xata.io/client": "^0.29.4",
     "@xata.io/drizzle": "^0.0.21",
     "@yolk-oss/elysia-env": "^1.0.2",
     "drizzle-orm": "^0.30.10",
     "elysia": "latest",
-    "pg": "^8.11.5"
+    "lucia": "^3.2.0",
+    "oslo": "^1.2.0",
+    "pg": "^8.11.5",
+    "resend": "^3.2.0"
   },
   "devDependencies": {
     "bun-types": "latest",
