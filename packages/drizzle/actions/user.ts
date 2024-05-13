@@ -8,6 +8,21 @@ export const getUsers = async (db: Database) => {
   return result;
 };
 
+export const getUserById = async (db: Database, userId: string) => {
+  const result = await db
+    .select()
+    .from(userTable)
+    .where(eq(userTable.id, userId));
+
+  const user = result[0];
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return user;
+};
+
 export const createUser = async (
   db: Database,
   {

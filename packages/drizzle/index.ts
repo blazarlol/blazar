@@ -7,6 +7,7 @@ export { emailVerificationTable } from "./schema/email-verification";
 // ACTIONS
 export {
   getUsers,
+  getUserById,
   createUser,
   validateUser,
   verifyUserEmail,
