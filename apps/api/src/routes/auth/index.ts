@@ -2,6 +2,7 @@ import {
   createEmailVerification,
   createUser,
   getUserById,
+  removeEmailVerification,
   validateEmailVerificationCode,
   validateUser,
   verifyUserEmail,
@@ -63,6 +64,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
         await createUser(db, { id, email, passwordHash });
 
         const code = await generateEmailVerificationCode();
+        // TODO: Hash the token with SHA-256
         const token = await generateEmailVerificationToken();
         // TODO: Create a function to generate the expiresAt date
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
@@ -109,6 +111,8 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       );
 
       await verifyUserEmail(db, emailVerification.userId);
+
+      await removeEmailVerification(db, emailVerification.userId);
 
       pool.end();
 

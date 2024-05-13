@@ -14,5 +14,6 @@ export {
 } from "./actions/user";
 export {
   createEmailVerification,
+  removeEmailVerification,
   validateEmailVerificationCode,
 } from "./actions/email-verification";
