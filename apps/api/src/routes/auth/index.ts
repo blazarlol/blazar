@@ -1,6 +1,7 @@
 import {
   createEmailVerification,
   createUser,
+  getUserById,
   validateEmailVerificationCode,
   validateUser,
   verifyUserEmail,
@@ -13,8 +14,13 @@ import {
   generatePasswordHash,
   generateUserId,
 } from "../../utils/generation";
-import { createSession } from "../../lib/lucia/session";
+import {
+  createSession,
+  invalidateSession,
+  validateSession,
+} from "../../lib/lucia/session";
 import { api } from "../..";
+import { lucia } from "../../lib/lucia";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
   .post(
@@ -112,6 +118,32 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       body: t.Object({
         code: t.String(),
         token: t.String(),
+      }),
+    }
+  )
+  .post(
+    "/signout",
+    async ({ body }) => {
+      const { userId, sessionId } = body;
+
+      const { db, pool } = await establishDatabasePoolConnection();
+
+      try {
+        await getUserById(db, userId);
+        await invalidateSession(sessionId);
+
+        pool.end();
+      } catch (error) {
+        pool.end();
+        return { message: (error as Error).message };
+      }
+
+      return { message: "user signed out successfully" };
+    },
+    {
+      body: t.Object({
+        userId: t.String(),
+        sessionId: t.String(),
       }),
     }
   );

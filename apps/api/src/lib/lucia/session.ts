@@ -7,10 +7,7 @@ export const createSession = async (userId: string, country: string) => {
   return session;
 };
 
-export const validateSession = async (
-  sessionId: string,
-  context?: Promise<{ user: User | null; session: Session | null }>
-) => {
+export const validateSession = async (sessionId: string) => {
   const { session, user } = await lucia.validateSession(sessionId);
 
   // if (session && session.fresh) {
@@ -23,4 +20,16 @@ export const validateSession = async (
   // if (!session) {
   //   const sessionCookie = lucia.createBlankSessionCookie();
   // }
+
+  return { session, user };
+};
+
+export const invalidateSession = async (sessionId: string) => {
+  const { session } = await validateSession(sessionId);
+
+  if (!session) {
+    throw new Error("Session not found");
+  }
+
+  return await lucia.invalidateSession(sessionId);
 };
