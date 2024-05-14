@@ -25,4 +25,8 @@ declare module "lucia" {
   interface DatabaseSessionAttributes {
     country: string;
   }
+
+  interface Session {
+    uuid: string;
+  }
 }

@@ -1,6 +1,6 @@
 import { generateRandomString, alphabet } from "oslo/crypto";
 
-export const generateUserId = async () => {
+export const generateId = async () => {
   const id = await generateRandomString(32, alphabet("a-z", "A-Z", "0-9"));
 
   return id;
@@ -22,8 +22,16 @@ export const generateEmailVerificationCode = async () => {
   return code;
 };
 
-export const generateEmailVerificationToken = async () => {
+export const generateToken = async () => {
   const token = await generateRandomString(32, alphabet("a-z", "A-Z", "0-9"));
 
   return token;
+};
+
+export const generateTokenHash = async (token: string) => {
+  const hasher = new Bun.CryptoHasher("sha256");
+
+  const hash = await hasher.update(token).digest("hex");
+
+  return hash;
 };

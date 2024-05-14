@@ -1,9 +1,13 @@
 import {
+  changeUserPasswordHash,
   createEmailVerification,
+  createPasswordReset,
   createUser,
+  getUserByEmail,
   getUserById,
   removeEmailVerification,
   validateEmailVerificationCode,
+  validatePasswordResetToken,
   validateUser,
   verifyUserEmail,
 } from "@blazar/drizzle";
@@ -11,9 +15,10 @@ import Elysia, { t } from "elysia";
 import { establishDatabasePoolConnection } from "../../lib/drizzle";
 import {
   generateEmailVerificationCode,
-  generateEmailVerificationToken,
   generatePasswordHash,
-  generateUserId,
+  generateId,
+  generateToken,
+  generateTokenHash,
 } from "../../utils/generation";
 import {
   createSession,
@@ -58,20 +63,21 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
         const { db, pool } = await establishDatabasePoolConnection();
 
-        const id = await generateUserId();
         const passwordHash = await generatePasswordHash(password);
+
+        const id = await crypto.randomUUID();
 
         await createUser(db, { id, email, passwordHash });
 
         const code = await generateEmailVerificationCode();
         // TODO: Hash the token with SHA-256
-        const token = await generateEmailVerificationToken();
+        const token = await generateToken();
         // TODO: Create a function to generate the expiresAt date
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
         await createEmailVerification(db, id, code, token, expiresAt);
 
-        const response = await api.api.email.verification.post({
+        const response = await api.api.email["email-verification"].post({
           email,
           code,
           token,
@@ -148,6 +154,71 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       body: t.Object({
         userId: t.String(),
         sessionId: t.String(),
+      }),
+    }
+  )
+  .post(
+    "/password-reset",
+    async ({ body }) => {
+      const { email } = body;
+
+      try {
+        const { db, pool } = await establishDatabasePoolConnection();
+
+        const user = await getUserByEmail(db, email);
+
+        const token = await generateToken();
+
+        const tokenHash = await generateTokenHash(token);
+
+        await createPasswordReset(db, user.id, tokenHash);
+
+        api.api.email["password-reset"].post({
+          email,
+          token,
+        });
+
+        await pool.end();
+        return { message: "password reset email sent" };
+      } catch (error) {
+        return { error: (error as Error).message };
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String(),
+      }),
+    }
+  )
+  .post(
+    "/password-reset/:token",
+    async ({ body, params }) => {
+      const { newPassword } = body;
+      const { token } = params;
+
+      try {
+        const { db, pool } = await establishDatabasePoolConnection();
+
+        const passwordReset = await validatePasswordResetToken(db, token);
+
+        if (passwordReset) {
+          const passwordHash = await generatePasswordHash(newPassword);
+
+          await changeUserPasswordHash(db, passwordReset.userId, passwordHash);
+
+          await pool.end();
+          return { message: "password reset successfully" };
+        }
+      } catch (error) {
+        return { error: (error as Error).message };
+      }
+    },
+    {
+      body: t.Object({
+        newPassword: t.String(),
+      }),
+      params: t.Object({
+        token: t.String(),
       }),
     }
   );

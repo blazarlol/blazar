@@ -4,38 +4,71 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export const emailRoutes = new Elysia({ prefix: "/email" }).post(
-  "/verification",
-  async ({ body }) => {
-    try {
-      const { email, code, token } = body;
+export const emailRoutes = new Elysia({ prefix: "/email" })
+  .post(
+    "/email-verification",
+    async ({ body }) => {
+      try {
+        const { email, code, token } = body;
 
-      const { data, error } = await resend.emails.send({
-        from: "Blazar <onboarding@blazar.lol>",
-        to: [email],
-        subject: "Email Verification",
-        text: `
+        const { data, error } = await resend.emails.send({
+          from: "Blazar <onboarding@blazar.lol>",
+          to: [email],
+          subject: "Email Verification",
+          text: `
           Your verification code is ${code}
           
           Activate your account by entering the link below:
-          http://localhost:3000/activate?token=${token}
+          http://localhost:3000/email-verification/${token}
         `,
-      });
+        });
 
-      if (error) {
-        throw new Error(error.message);
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return { data };
+      } catch (error) {
+        return { error: (error as Error).message };
       }
-
-      return { data };
-    } catch (error) {
-      return { error: (error as Error).message };
+    },
+    {
+      body: t.Object({
+        email: t.String(),
+        code: t.String(),
+        token: t.String(),
+      }),
     }
-  },
-  {
-    body: t.Object({
-      email: t.String(),
-      code: t.String(),
-      token: t.String(),
-    }),
-  }
-);
+  )
+  .post(
+    "/password-reset",
+    async ({ body }) => {
+      try {
+        const { email, token } = body;
+
+        const { data, error } = await resend.emails.send({
+          from: "Blazar <password-reset@blazar.lol>",
+          to: [email],
+          subject: "Password Reset",
+          text: `
+            Click the link below to reset your password:
+            http://localhost:3000/reset-password/${token}
+          `,
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        return { data };
+      } catch (error) {
+        return { error: (error as Error).message };
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String(),
+        token: t.String(),
+      }),
+    }
+  );
