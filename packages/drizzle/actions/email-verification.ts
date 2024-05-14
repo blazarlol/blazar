@@ -6,7 +6,7 @@ export const createEmailVerification = async (
   db: Database,
   userId: string,
   code: string,
-  token: string,
+  tokenHash: string,
   expiresAt: Date
 ) => {
   try {
@@ -15,10 +15,13 @@ export const createEmailVerification = async (
     // Do nothing
   }
 
+  const id = crypto.randomUUID();
+
   const result = await db.insert(emailVerificationTable).values({
+    id,
     userId,
     code,
-    token,
+    tokenHash,
     expiresAt,
   });
 
@@ -52,7 +55,7 @@ export const validateEmailVerificationCode = async (
       code: emailVerificationTable.code,
     })
     .from(emailVerificationTable)
-    .where(eq(emailVerificationTable.token, token));
+    .where(eq(emailVerificationTable.tokenHash, token));
 
   const emailVerification = result[0];
 

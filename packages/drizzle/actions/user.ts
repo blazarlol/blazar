@@ -10,7 +10,10 @@ export const getUsers = async (db: Database) => {
 
 export const getUserById = async (db: Database, userId: string) => {
   const result = await db
-    .select()
+    .select({
+      email: userTable.email,
+      emailVerified: userTable.emailVerified,
+    })
     .from(userTable)
     .where(eq(userTable.id, userId));
 
@@ -18,6 +21,32 @@ export const getUserById = async (db: Database, userId: string) => {
 
   if (!user) {
     throw new Error("User not found");
+  }
+
+  if (!user.emailVerified) {
+    throw new Error("Email not verified");
+  }
+
+  return user;
+};
+
+export const getUserByEmail = async (db: Database, email: string) => {
+  const result = await db
+    .select({
+      id: userTable.id,
+      emailVerified: userTable.emailVerified,
+    })
+    .from(userTable)
+    .where(eq(userTable.email, email));
+
+  const user = result[0];
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  if (!user.emailVerified) {
+    throw new Error("Email not verified");
   }
 
   return user;
@@ -31,7 +60,7 @@ export const createUser = async (
     passwordHash,
   }: { id: string; email: string; passwordHash: string }
 ) => {
-  return db.insert(userTable).values({ id, email, passwordHash });
+  return await db.insert(userTable).values({ id, email, passwordHash });
 };
 
 export const validateUser = async (
@@ -71,5 +100,16 @@ export const verifyUserEmail = async (db: Database, userId: string) => {
   return db
     .update(userTable)
     .set({ emailVerified: true })
+    .where(eq(userTable.id, userId));
+};
+
+export const changeUserPasswordHash = async (
+  db: Database,
+  userId: string,
+  passwordHash: string
+) => {
+  await db
+    .update(userTable)
+    .set({ passwordHash })
     .where(eq(userTable.id, userId));
 };
