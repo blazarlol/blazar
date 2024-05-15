@@ -16,17 +16,11 @@ import { establishDatabasePoolConnection } from "../../lib/drizzle";
 import {
   generateEmailVerificationCode,
   generatePasswordHash,
-  generateId,
   generateToken,
   generateTokenHash,
 } from "../../utils/generation";
-import {
-  createSession,
-  invalidateSession,
-  validateSession,
-} from "../../lib/lucia/session";
+import { createSession, invalidateSession } from "../../lib/lucia/session";
 import { api } from "../..";
-import { lucia } from "../../lib/lucia";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
   .post(
@@ -104,7 +98,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }
   )
   .post(
-    "/verify",
+    "/email-verification",
     async ({ body }) => {
       const { code, token } = body as { code: string; token: string };
 
