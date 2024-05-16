@@ -60,7 +60,24 @@ export const createUser = async (
     passwordHash,
   }: { id: string; email: string; passwordHash: string }
 ) => {
-  return await db.insert(userTable).values({ id, email, passwordHash });
+  const check = await db
+    .select({
+      email: userTable.email,
+    })
+    .from(userTable)
+    .where(eq(userTable.email, email));
+
+  if (check.length > 0) {
+    throw new Error("User already exists");
+  }
+
+  const result = await db.insert(userTable).values({ id, email, passwordHash });
+
+  if (!result) {
+    throw new Error("Failed to create user");
+  }
+
+  return result;
 };
 
 export const validateUser = async (

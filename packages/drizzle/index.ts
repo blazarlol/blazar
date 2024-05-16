@@ -19,6 +19,7 @@ export {
   createEmailVerification,
   removeEmailVerification,
   validateEmailVerificationCode,
+  validateEmailVerificationToken,
 } from "./actions/email-verification";
 export {
   createPasswordReset,

@@ -69,3 +69,40 @@ export const validateEmailVerificationCode = async (
 
   return { userId: emailVerification.userId };
 };
+
+// TODO: Look into it if it isn't better to pass UserId to this function from the cookie or something
+// TODO: Create reusable validateToken function (as there will be more functions like this for many things)
+export const validateEmailVerificationToken = async (
+  db: Database,
+  token: string
+) => {
+  // TODO: Create package for hashing and use package functions here
+  const hasher = new Bun.CryptoHasher("sha256");
+
+  const tokenHash = await hasher.update(token).digest("hex");
+
+  if (!tokenHash) {
+    throw new Error("Failed to hash the token");
+  }
+
+  const result = await db
+    .select({
+      expiresAt: emailVerificationTable.expiresAt,
+    })
+    .from(emailVerificationTable)
+    .where(eq(emailVerificationTable.tokenHash, tokenHash));
+
+  const emailVerification = result[0];
+
+  if (!emailVerification) {
+    throw new Error(
+      `Email verification not found for this token. ${tokenHash} | ${token}`
+    );
+  }
+
+  if (new Date(emailVerification.expiresAt).getTime() < new Date().getTime()) {
+    throw new Error("Token expired");
+  }
+
+  return { tokenHash };
+};
