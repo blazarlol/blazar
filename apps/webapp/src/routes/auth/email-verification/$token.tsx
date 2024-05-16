@@ -1,5 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
+import EmailVerificationForm from "../../../components/forms/auth/email-verification-form";
+
+const Index = () => {
+  const { token } = Route.useLoaderData();
+
+  return <EmailVerificationForm token={token} />;
+};
 
 export const Route = createFileRoute("/auth/email-verification/$token")({
-  component: () => <div>Hello /auth/email-verification/$token!</div>,
+  loader: ({ params }) => {
+    return { token: params.token };
+  },
+  component: Index,
 });
