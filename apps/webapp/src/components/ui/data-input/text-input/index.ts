@@ -1,3 +1,4 @@
+import { LabelProps } from "../label";
 import Root from "./text-input";
 import { VariantProps, tv } from "tailwind-variants";
 
@@ -42,6 +43,7 @@ export type Props = {
   variant?: Variant;
   color?: Color;
   area?: Area;
+  label?: LabelProps;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export {
