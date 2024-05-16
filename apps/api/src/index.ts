@@ -3,11 +3,10 @@ import { userRoutes } from "./routes/users";
 import { authRoutes } from "./routes/auth";
 import { emailRoutes } from "./routes/email";
 import { treaty } from "@elysiajs/eden";
-import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+import cors from "@elysiajs/cors";
 
 const app = new Elysia()
+  .use(cors())
   .group("/api", (app) => {
     return app.use(userRoutes).use(authRoutes).use(emailRoutes);
   })

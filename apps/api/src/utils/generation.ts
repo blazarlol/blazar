@@ -13,6 +13,10 @@ export const generatePasswordHash = async (password: string) => {
     timeCost: 3,
   });
 
+  if (!hash) {
+    throw new Error("Failed to generate the password hash.");
+  }
+
   return hash;
 };
 

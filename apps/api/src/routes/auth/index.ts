@@ -7,6 +7,7 @@ import {
   getUserById,
   removeEmailVerification,
   validateEmailVerificationCode,
+  validateEmailVerificationToken,
   validatePasswordResetToken,
   validateUser,
   verifyUserEmail,
@@ -30,6 +31,10 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
       const { db, pool } = await establishDatabasePoolConnection();
 
+      if (!db || !pool) {
+        return { message: "Failed to establish a database connection" };
+      }
+
       try {
         const user = await validateUser(db, { email, password });
 
@@ -51,25 +56,30 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
   )
   .post(
     "/signup",
+    // TODO: ERROR HANDLING FOR LACK OF EMAIL OR PASSWORD AS A RESPONSE
     async ({ body }) => {
       try {
         const { email, password } = body as { email: string; password: string };
 
         const { db, pool } = await establishDatabasePoolConnection();
 
-        const passwordHash = await generatePasswordHash(password);
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
 
+        const passwordHash = await generatePasswordHash(password);
         const id = await crypto.randomUUID();
 
         await createUser(db, { id, email, passwordHash });
 
         const code = await generateEmailVerificationCode();
-        // TODO: Hash the token with SHA-256
         const token = await generateToken();
+        const tokenHash = await generateTokenHash(token);
+
         // TODO: Create a function to generate the expiresAt date
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-        await createEmailVerification(db, id, code, token, expiresAt);
+        await createEmailVerification(db, id, code, tokenHash, expiresAt);
 
         const response = await api.api.email["email-verification"].post({
           email,
@@ -98,30 +108,41 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     }
   )
   .post(
-    "/email-verification",
-    async ({ body }) => {
-      const { code, token } = body as { code: string; token: string };
+    "/email-verification/:token",
+    async ({ body, params }) => {
+      const { code } = body;
+      const { token } = params;
 
-      const { db, pool } = await establishDatabasePoolConnection();
+      try {
+        const { db, pool } = await establishDatabasePoolConnection();
 
-      const emailVerification = await validateEmailVerificationCode(
-        db,
-        token,
-        code
-      );
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
 
-      await verifyUserEmail(db, emailVerification.userId);
+        const validToken = await validateEmailVerificationToken(db, token);
 
-      await removeEmailVerification(db, emailVerification.userId);
+        if (validToken) {
+          const emailVerification = await validateEmailVerificationCode(
+            db,
+            validToken.tokenHash,
+            code
+          );
 
-      pool.end();
+          await verifyUserEmail(db, emailVerification.userId);
+          await removeEmailVerification(db, emailVerification.userId);
 
-      return { message: "email verified successfully" };
+          pool.end();
+
+          return { message: "email verified successfully" };
+        }
+      } catch (error) {
+        return { error: (error as Error).message };
+      }
     },
     {
       body: t.Object({
         code: t.String(),
-        token: t.String(),
       }),
     }
   )
@@ -130,15 +151,18 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     async ({ body }) => {
       const { userId, sessionId } = body;
 
-      const { db, pool } = await establishDatabasePoolConnection();
-
       try {
+        const { db, pool } = await establishDatabasePoolConnection();
+
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
+
         await getUserById(db, userId);
         await invalidateSession(sessionId);
 
         pool.end();
       } catch (error) {
-        pool.end();
         return { message: (error as Error).message };
       }
 
@@ -158,6 +182,10 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
       try {
         const { db, pool } = await establishDatabasePoolConnection();
+
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
 
         const user = await getUserByEmail(db, email);
 
@@ -193,12 +221,16 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
       try {
         const { db, pool } = await establishDatabasePoolConnection();
 
-        const passwordReset = await validatePasswordResetToken(db, token);
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
 
-        if (passwordReset) {
+        const validToken = await validatePasswordResetToken(db, token);
+
+        if (validToken) {
           const passwordHash = await generatePasswordHash(newPassword);
 
-          await changeUserPasswordHash(db, passwordReset.userId, passwordHash);
+          await changeUserPasswordHash(db, validToken.userId, passwordHash);
 
           await pool.end();
           return { message: "password reset successfully" };

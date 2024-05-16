@@ -3,6 +3,7 @@ import { drizzle as drizzleTCP } from "drizzle-orm/node-postgres";
 import { drizzle as drizzleHTTP } from "drizzle-orm/xata-http";
 import { Client, Pool } from "pg";
 
+// TODO: Create a single function to handle the different types of database connections whilst keeping the error handling consistent
 export const establishDatabaseHTTPConnection = async () => {
   const xata = getXataClient();
   const db = drizzleHTTP(xata);
@@ -19,13 +20,18 @@ export const establishDatabaseTCPConnection = async () => {
 };
 
 export const establishDatabasePoolConnection = async () => {
-  const xata = getXataClient();
-  const pool = new Pool({
-    connectionString: xata.sql.connectionString,
-    max: 20,
-  });
+  try {
+    const xata = getXataClient();
 
-  const db = drizzleTCP(pool);
+    const pool = new Pool({
+      connectionString: xata.sql.connectionString,
+      max: 20,
+    });
 
-  return { xata, pool, db };
+    const db = drizzleTCP(pool);
+
+    return { xata, pool, db };
+  } catch (error) {
+    return { message: (error as Error).message };
+  }
 };

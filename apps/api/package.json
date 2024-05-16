@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@blazar/drizzle": "workspace:packages/drizzle",
+    "@elysiajs/cors": "^1.0.2",
     "@elysiajs/eden": "^1.0.13",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@neondatabase/serverless": "^0.9.3",
