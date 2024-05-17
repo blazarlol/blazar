@@ -88,15 +88,15 @@ declare module '@tanstack/react-router' {
     }
     '/auth/email-verification/': {
       id: '/auth/email-verification/'
-      path: '/auth/email-verification/'
-      fullPath: '/auth/email-verification/'
+      path: '/auth/email-verification'
+      fullPath: '/auth/email-verification'
       preLoaderRoute: typeof AuthEmailVerificationIndexImport
       parentRoute: typeof rootRoute
     }
     '/auth/password-reset/': {
       id: '/auth/password-reset/'
-      path: '/auth/password-reset/'
-      fullPath: '/auth/password-reset/'
+      path: '/auth/password-reset'
+      fullPath: '/auth/password-reset'
       preLoaderRoute: typeof AuthPasswordResetIndexImport
       parentRoute: typeof rootRoute
     }

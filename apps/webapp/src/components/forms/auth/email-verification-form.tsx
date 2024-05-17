@@ -3,6 +3,7 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
+import { EmailVerificationCodeSchema } from "../../../libs/zod/schema";
 
 interface EmailVerificationFormProps {
   token: string;
@@ -52,20 +53,39 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
     >
       <form.Field
         name="code"
+        validators={{
+          onBlur: EmailVerificationCodeSchema,
+        }}
         children={(field) => {
           return (
-            <TextInput
-              type="text"
-              value={field.state.value}
-              onBlur={field.handleBlur}
-              onChange={(e) => field.handleChange(e.target.value)}
-              label={{ children: "Code", htmlFor: field.name }}
-            />
+            <>
+              <TextInput
+                type="text"
+                value={field.state.value}
+                onBlur={field.handleBlur}
+                onChange={(e) => field.handleChange(e.target.value)}
+                label={{ children: "Code", htmlFor: field.name }}
+              />
+
+              {field.state.meta.errors &&
+                field.state.meta.errors.map((error) => (
+                  <div className="text-red-500 text-sm">{error}</div>
+                ))}
+            </>
           );
         }}
       />
 
-      <Button type="submit">Verify</Button>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+        children={([canSubmit, isSubmitting]) => {
+          return (
+            <Button type="submit" disabled={!canSubmit}>
+              {isSubmitting ? "..." : "Submit"}
+            </Button>
+          );
+        }}
+      />
     </form>
   );
 };

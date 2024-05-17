@@ -1,9 +1,11 @@
 import { ButtonProps, buttonVariants } from ".";
 import { cn } from "../../../../utils/styles";
 
-const Button = ({ children, className }: ButtonProps) => {
+const Button = ({ children, className, ...restProps }: ButtonProps) => {
   return (
-    <button className={cn(buttonVariants({ className }))}>{children}</button>
+    <button className={cn(buttonVariants({ className }))} {...restProps}>
+      {children}
+    </button>
   );
 };
 

@@ -2,42 +2,46 @@ import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
-import { useRouter } from "@tanstack/react-router";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
+import { useRouter } from "@tanstack/react-router";
 
-const SignUpForm = () => {
+const SignInForm = () => {
   const router = useRouter();
-
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
-      confirmPassword: "",
     },
-    onSubmit: async (values) => {
-      await fetch("http://localhost:8080/api/auth/signup", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
-          email: values.value.email,
-          password: values.value.password,
-        }),
-      });
+    onSubmit: async ({ value, formApi }) => {
+      // TODO: ADD COOKIE CREATION ETC.
+      // FOR THIS I NEED TO CREATE LUCIA PACKAGE THAT WILL BE USED IN ALL APPS
 
-      values.formApi.reset();
+      try {
+        await fetch("http://localhost:8080/api/auth/signin", {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: JSON.stringify({
+            email: value.email,
+            password: value.password,
+          }),
+        });
 
-      router.navigate({
-        to: "/auth/email-verification",
-      });
+        formApi.reset();
+
+        router.navigate({
+          // to: '/onboarding'
+        });
+      } catch (error) {
+        console.error(error);
+      }
     },
     validatorAdapter: zodValidator,
   });
 
   return (
     <form
-      className="flex flex-col gap-y-2 max-w-64"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -48,19 +52,21 @@ const SignUpForm = () => {
         name="email"
         validators={{
           onBlur: EmailSchema,
-          // TODO: Add a custom onSubmit validator to check if the email is already in use
         }}
         children={(field) => {
           return (
             <>
               <TextInput
-                type="email"
+                placeholder="your@email.com"
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                label={{ children: "Email", htmlFor: field.name }}
+                label={{
+                  children: "Email",
+                }}
               />
 
+              {/* TODO: Create Error component and ErrorList component */}
               {field.state.meta.errors &&
                 field.state.meta.errors.map((error) => (
                   <div className="text-red-500 text-sm">{error}</div>
@@ -83,41 +89,8 @@ const SignUpForm = () => {
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                label={{ children: "Password", htmlFor: field.name }}
-              />
-
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
-            </>
-          );
-        }}
-      />
-
-      <form.Field
-        name="confirmPassword"
-        validators={{
-          onChangeListenTo: ["password"],
-          onBlur: ({ value, fieldApi }) => {
-            if (value !== fieldApi.form.getFieldValue("password")) {
-              return "Passwords do not match";
-            }
-
-            return undefined;
-          },
-        }}
-        children={(field) => {
-          return (
-            <>
-              <TextInput
-                type="password"
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
                 label={{
-                  children: "Confirm Password",
-                  htmlFor: field.name,
+                  children: "Password",
                 }}
               />
 
@@ -144,4 +117,4 @@ const SignUpForm = () => {
   );
 };
 
-export default SignUpForm;
+export default SignInForm;

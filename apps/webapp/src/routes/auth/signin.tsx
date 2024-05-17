@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import SignInForm from "../../components/forms/auth/signin-form";
+
+const Index = () => {
+  return <SignInForm />;
+};
 
 export const Route = createFileRoute("/auth/signin")({
-  component: () => <div>Hello /auth/signin!</div>,
+  component: Index,
 });
