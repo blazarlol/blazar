@@ -19,7 +19,7 @@ export const emailRoutes = new Elysia({ prefix: "/email" })
           Your verification code is ${code}
           
           Activate your account by entering the link below:
-          http://localhost:3000/email-verification/${token}
+          http://localhost:8080/auth/email-verification/${token}
         `,
         });
 
@@ -52,7 +52,7 @@ export const emailRoutes = new Elysia({ prefix: "/email" })
           subject: "Password Reset",
           text: `
             Click the link below to reset your password:
-            http://localhost:3000/reset-password/${token}
+            http://localhost:8080/auth/password-reset/${token}
           `,
         });
 
