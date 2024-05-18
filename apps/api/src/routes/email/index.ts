@@ -1,4 +1,3 @@
-import { treaty } from "@elysiajs/eden";
 import Elysia, { t } from "elysia";
 import { Resend } from "resend";
 

@@ -5,32 +5,19 @@
     "dev": "bun --watch src/index.ts",
     "build": "bun build src/index.ts",
     "start": "NODE_ENV=production bun src/index.ts",
-    "test": "bun test",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:up": "drizzle-kit up"
+    "test": "bun test"
   },
   "dependencies": {
-    "@blazar/drizzle": "workspace:packages/drizzle",
+    "@blazar/db": "workspace:packages/db",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/eden": "^1.0.13",
-    "@lucia-auth/adapter-drizzle": "^1.0.7",
-    "@neondatabase/serverless": "^0.9.3",
-    "@xata.io/client": "^0.29.4",
-    "@xata.io/drizzle": "^0.0.21",
     "@yolk-oss/elysia-env": "^1.0.2",
-    "drizzle-orm": "^0.30.10",
     "elysia": "latest",
-    "lucia": "^3.2.0",
-    "oslo": "^1.2.0",
-    "pg": "^8.11.5",
     "resend": "^3.2.0"
   },
   "devDependencies": {
     "bun-types": "latest",
     "dotenv": "^16.4.5",
-    "drizzle-kit": "^0.21.0",
     "tsx": "^4.9.3"
   },
   "module": "src/index.js"

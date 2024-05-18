@@ -2,25 +2,26 @@ import {
   changeUserPasswordHash,
   createEmailVerification,
   createPasswordReset,
+  createSession,
   createUser,
   getUserByEmail,
   getUserById,
+  invalidateSession,
   removeEmailVerification,
   validateEmailVerificationCode,
   validateEmailVerificationToken,
   validatePasswordResetToken,
   validateUser,
   verifyUserEmail,
-} from "@blazar/drizzle";
+  establishDatabasePoolConnection,
+} from "@blazar/db";
 import Elysia, { t } from "elysia";
-import { establishDatabasePoolConnection } from "../../lib/drizzle";
 import {
   generateEmailVerificationCode,
   generatePasswordHash,
   generateToken,
   generateTokenHash,
 } from "../../utils/generation";
-import { createSession, invalidateSession } from "../../lib/lucia/session";
 import { api } from "../..";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })
