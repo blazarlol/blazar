@@ -13,7 +13,6 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^0.9.3",
     "@xata.io/client": "^0.29.4",
     "@xata.io/drizzle": "^0.0.21",
     "drizzle-orm": "^0.30.10",
