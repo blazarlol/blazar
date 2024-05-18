@@ -21,7 +21,7 @@ import {
   generatePasswordHash,
   generateToken,
   generateTokenHash,
-} from "../../utils/generation";
+} from "@blazar/helpers";
 import { api } from "../..";
 
 export const authRoutes = new Elysia({ prefix: "/auth" })

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@blazar/db": "workspace:packages/db",
+    "@blazar/helpers": "workspace:packages/helpers",
     "@elysiajs/cors": "^1.0.2",
     "@elysiajs/eden": "^1.0.13",
     "@yolk-oss/elysia-env": "^1.0.2",
@@ -16,7 +17,6 @@
     "resend": "^3.2.0"
   },
   "devDependencies": {
-    "bun-types": "latest",
     "dotenv": "^16.4.5",
     "tsx": "^4.9.3"
   },
