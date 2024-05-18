@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { emailVerificationTable } from "../schema/email-verification";
-import { Database } from "../types";
+import { emailVerificationTable } from "../../lib/drizzle/schema/email-verification";
+import { Database } from "../../types";
 
 export const createEmailVerification = async (
   db: Database,

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { passwordResetTable } from "../schema/password-reset";
-import { Database } from "../types";
+import { passwordResetTable } from "../../lib/drizzle/schema/password-reset";
+import { Database } from "../../types";
 
 export const createPasswordReset = async (
   db: Database,
