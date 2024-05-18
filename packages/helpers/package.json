@@ -1,0 +1,15 @@
+{
+  "name": "@blazar/helpers",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "db:generate": "drizzle-kit generate"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/bun": "^1.1.2"
+  }
+}
