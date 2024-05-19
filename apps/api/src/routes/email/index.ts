@@ -1,7 +1,7 @@
 import Elysia, { t } from "elysia";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(Bun.env.RESEND_API_KEY);
 
 export const emailRoutes = new Elysia({ prefix: "/email" })
   .post(

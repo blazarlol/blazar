@@ -30,21 +30,23 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
     async ({ body }) => {
       const { email, password } = body as { email: string; password: string };
 
-      const { db, pool } = await establishDatabasePoolConnection();
-
-      if (!db || !pool) {
-        return { message: "Failed to establish a database connection" };
-      }
-
       try {
+        const { db, pool } = await establishDatabasePoolConnection();
+
+        if (!db || !pool) {
+          return { message: "Failed to establish a database connection" };
+        }
+
         const user = await validateUser(db, { email, password });
 
-        await createSession(user.id, "pl");
+        const session = await createSession(user.id, "pl");
 
         pool.end();
-        return { message: "user signed in successfully" };
+        return {
+          message: "user signed in successfully",
+          sessionCookie: session.sessionCookie,
+        };
       } catch (error) {
-        pool.end();
         return { message: (error as Error).message };
       }
     },
