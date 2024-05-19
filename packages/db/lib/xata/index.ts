@@ -2,8 +2,9 @@
 import { buildClient } from "@xata.io/client";
 import type { BaseClientOptions, SchemaInference } from "@xata.io/client";
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config({ path: "../../.env" });
+// dotenv.config({ path: "../../.env" });
 
 const tables = [] as const;
 
@@ -30,6 +31,8 @@ let instance: XataClient | undefined = undefined;
 export const getXataClient = () => {
   if (instance) return instance;
 
-  instance = new XataClient({ apiKey: process.env.XATA_API_KEY });
+  instance = new XataClient({
+    apiKey: Bun.env.XATA_API_KEY,
+  });
   return instance;
 };

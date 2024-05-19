@@ -12,7 +12,7 @@ const initializeLucia = async () => {
   const lucia = new Lucia(adapter, {
     sessionCookie: {
       attributes: {
-        secure: process.env.NODE_ENV === "production",
+        secure: Bun.env.NODE_ENV === "production",
       },
     },
     sessionExpiresIn: new TimeSpan(2, "w"),

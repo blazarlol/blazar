@@ -13,13 +13,13 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
+    "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@xata.io/client": "^0.29.4",
     "@xata.io/drizzle": "^0.0.21",
     "drizzle-orm": "^0.30.10",
-    "pg": "^8.11.5",
     "lucia": "^3.2.0",
     "oslo": "^1.2.0",
-    "@lucia-auth/adapter-drizzle": "^1.0.7"
+    "pg": "^8.11.5"
   },
   "devDependencies": {
     "drizzle-kit": "^0.21.0"
