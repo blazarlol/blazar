@@ -1,2 +1,2 @@
 export * from "./generation";
-export * from "./cookies";
+export * from "./cookies/auth";

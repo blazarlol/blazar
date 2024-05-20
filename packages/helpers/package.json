@@ -6,10 +6,9 @@
     ".": "./index.ts"
   },
   "dependencies": {
-    "js-cookie": "^3.0.5"
+    "cookies-next": "^4.1.1"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.2",
-    "@types/js-cookie": "^3.0.6"
+    "@types/bun": "^1.1.2"
   }
 }
