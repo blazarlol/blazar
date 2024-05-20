@@ -1,0 +1,14 @@
+{
+  "name": "@blazar/elysia",
+  "version": "0.0.1",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  },
+  "dependencies": {
+    "@elysiajs/eden": "^1.0.13",
+    "elysia": "^1.0.20",
+    "api": "workspace:apps/api"
+  },
+  "devDependencies": {}
+}
