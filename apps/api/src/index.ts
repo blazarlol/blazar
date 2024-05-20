@@ -11,4 +11,5 @@ const app = new Elysia()
   })
   .listen(8080);
 
-export const api = treaty<typeof app>("localhost:8080");
+export type Api = typeof app;
+export const { api } = treaty<typeof app>("localhost:8080");

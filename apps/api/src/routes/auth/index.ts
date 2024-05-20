@@ -84,7 +84,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
         await createEmailVerification(db, id, code, tokenHash, expiresAt);
 
-        const response = await api.api.email["email-verification"].post({
+        const response = await api.email["email-verification"].post({
           email,
           code,
           token,
@@ -198,7 +198,7 @@ export const authRoutes = new Elysia({ prefix: "/auth" })
 
         await createPasswordReset(db, user.id, tokenHash);
 
-        api.api.email["password-reset"].post({
+        api.email["password-reset"].post({
           email,
           token,
         });
