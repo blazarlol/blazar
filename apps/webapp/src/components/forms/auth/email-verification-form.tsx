@@ -4,6 +4,7 @@ import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
 import { EmailVerificationCodeSchema } from "../../../libs/zod/schema";
+import { apiTreaty } from "@blazar/elysia";
 
 interface EmailVerificationFormProps {
   token: string;
@@ -18,18 +19,9 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
     },
     onSubmit: async (values) => {
       try {
-        await fetch(
-          `http://localhost:8080/api/auth/email-verification/${token}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-              code: values.value.code,
-            }),
-          }
-        );
+        await apiTreaty.api.auth["email-verification"][token].post({
+          code: values.value.code,
+        });
 
         values.formApi.reset();
 

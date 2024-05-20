@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blazar/db": "workspace:packages/db",
+    "@blazar/elysia": "workspace:packages/elysia",
+    "@blazar/helpers": "workspace:packages/helpers",
     "@tanstack/react-form": "^0.19.5",
     "@tanstack/react-query": "^5.36.1",
     "@tanstack/react-router": "^1.32.5",

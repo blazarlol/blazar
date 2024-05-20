@@ -11,6 +11,7 @@ export const PasswordSchema = z
   .regex(/(?=.*\d)/, "Password must contain at least one number");
 
 export const EmailVerificationCodeSchema = z
-  .number({ coerce: true })
-  .min(100000, "Invalid code")
-  .max(999999, "Invalid code");
+  // .number({ coerce: true })
+  // .min(100000, "Invalid code")
+  // .max(999999, "Invalid code");
+  .string();

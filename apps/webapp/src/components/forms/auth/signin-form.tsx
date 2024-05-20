@@ -4,29 +4,43 @@ import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
 import { useRouter } from "@tanstack/react-router";
+import { apiTreaty } from "@blazar/elysia";
+import { createAuthSessionCookie } from "@blazar/helpers";
 
 const SignInForm = () => {
   const router = useRouter();
+
   const form = useForm({
     defaultValues: {
       email: "",
       password: "",
     },
     onSubmit: async ({ value, formApi }) => {
-      // TODO: ADD COOKIE CREATION ETC.
-      // FOR THIS I NEED TO CREATE LUCIA PACKAGE THAT WILL BE USED IN ALL APPS
-
       try {
-        await fetch("http://localhost:8080/api/auth/signin", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          method: "POST",
-          body: JSON.stringify({
-            email: value.email,
-            password: value.password,
-          }),
+        const response = await apiTreaty.api.auth.signin.post({
+          email: value.email,
+          password: value.password,
         });
+
+        const sessionCookieData = await response.data?.sessionCookie;
+
+        if (!sessionCookieData) {
+          throw new Error("Session cookie not found");
+        }
+
+        await createAuthSessionCookie(
+          sessionCookieData.name,
+          sessionCookieData.value,
+          {
+            maxAge: sessionCookieData.attributes.maxAge,
+            domain: sessionCookieData.attributes.domain,
+            path: sessionCookieData.attributes.path,
+            secure: sessionCookieData.attributes.secure,
+            sameSite: sessionCookieData.attributes.sameSite,
+            // TODO: Change the cookie generation to be server sided in the future
+            // httpOnly: sessionCookieData.attributes.httpOnly,
+          }
+        );
 
         formApi.reset();
 

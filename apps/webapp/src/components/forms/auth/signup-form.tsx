@@ -4,6 +4,7 @@ import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
+import { apiTreaty } from "@blazar/elysia";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -15,22 +16,20 @@ const SignUpForm = () => {
       confirmPassword: "",
     },
     onSubmit: async (values) => {
-      await fetch("http://localhost:8080/api/auth/signup", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: JSON.stringify({
+      try {
+        await apiTreaty.api.auth.signup.post({
           email: values.value.email,
           password: values.value.password,
-        }),
-      });
+        });
 
-      values.formApi.reset();
+        values.formApi.reset();
 
-      router.navigate({
-        to: "/auth/email-verification",
-      });
+        router.navigate({
+          to: "/auth/email-verification",
+        });
+      } catch (error) {
+        console.error(error);
+      }
     },
     validatorAdapter: zodValidator,
   });
