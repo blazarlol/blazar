@@ -9,6 +9,7 @@ const app = new Elysia()
   .group("/api", (app) => {
     return app.use(authRoutes).use(emailRoutes);
   })
+
   .listen(8080);
 
 export type Api = typeof app;
