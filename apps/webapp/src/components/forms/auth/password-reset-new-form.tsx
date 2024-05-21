@@ -134,6 +134,8 @@ const PasswordResetNewForm = () => {
           );
         }}
       />
+
+      {mutation.error && <div>{mutation.error.message}</div>}
     </form>
   );
 };

@@ -154,6 +154,8 @@ const SignInForm = () => {
           );
         }}
       />
+
+      {mutation.error && <div>{mutation.error.message}</div>}
     </form>
   );
 };

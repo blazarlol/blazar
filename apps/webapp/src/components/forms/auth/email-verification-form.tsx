@@ -100,6 +100,8 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
           );
         }}
       />
+
+      {mutation.error && <div>{mutation.error.message}</div>}
     </form>
   );
 };
