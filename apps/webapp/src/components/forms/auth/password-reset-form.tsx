@@ -4,27 +4,44 @@ import { TextInput } from "../../ui/data-input/text-input";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
 import { Button } from "../../ui/actions/button";
 import { apiTreaty } from "@blazar/elysia";
+import { useMutation } from "@tanstack/react-query";
 
 const PasswordResetForm = () => {
+  const mutation = useMutation({
+    mutationKey: ["password-reset"],
+    mutationFn: async ({ email }: { email: string }) => {
+      const { data, error } = await apiTreaty.api.auth[
+        "password-reset"
+      ].index.post({
+        email,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       email: "",
     },
-    onSubmit: async (values) => {
+    onSubmit: async ({ value, formApi }) => {
       try {
-        const { data, error } = await apiTreaty.api.auth["password-reset"].post(
-          {
-            email: values.value.email,
-          }
-        );
+        mutation.mutateAsync({
+          email: value.email,
+        });
 
-        if (error) {
-          throw new Error(error.message);
+        if (mutation.error) {
+          console.error(mutation.error.message);
+          throw new Error(mutation.error.message);
+        } else {
+          formApi.reset();
         }
-
-        console.log(data);
       } catch (e) {
-        console.error(e);
+        return;
       }
     },
     validatorAdapter: zodValidator,

@@ -6,9 +6,31 @@ import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
 import { useRouter } from "@tanstack/react-router";
 import { apiTreaty } from "@blazar/elysia";
 import { createAuthSessionCookie } from "@blazar/helpers";
+import { useMutation } from "@tanstack/react-query";
 
 const SignInForm = () => {
   const router = useRouter();
+  const mutation = useMutation({
+    mutationKey: ["signin"],
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { data, error } = await apiTreaty.api.auth.signin.post({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
 
   const form = useForm({
     defaultValues: {
@@ -17,38 +39,43 @@ const SignInForm = () => {
     },
     onSubmit: async ({ value, formApi }) => {
       try {
-        const response = await apiTreaty.api.auth.signin.post({
+        await mutation.mutateAsync({
           email: value.email,
           password: value.password,
         });
 
-        const sessionCookieData = await response.data?.sessionCookie;
+        if (mutation.error) {
+          console.error(mutation.error.message);
+          throw new Error(mutation.error.message);
+        } else {
+          const sessionCookieData = await mutation.data?.sessionCookie;
 
-        if (!sessionCookieData) {
-          throw new Error("Session cookie not found");
-        }
-
-        await createAuthSessionCookie(
-          sessionCookieData.name,
-          sessionCookieData.value,
-          {
-            maxAge: sessionCookieData.attributes.maxAge,
-            domain: sessionCookieData.attributes.domain,
-            path: sessionCookieData.attributes.path,
-            secure: sessionCookieData.attributes.secure,
-            sameSite: sessionCookieData.attributes.sameSite,
-            // TODO: Change the cookie generation to be server sided in the future
-            // httpOnly: sessionCookieData.attributes.httpOnly,
+          if (!sessionCookieData) {
+            throw new Error("Session cookie not found");
           }
-        );
 
-        formApi.reset();
+          await createAuthSessionCookie(
+            sessionCookieData.name,
+            sessionCookieData.value,
+            {
+              maxAge: sessionCookieData.attributes.maxAge,
+              domain: sessionCookieData.attributes.domain,
+              path: sessionCookieData.attributes.path,
+              secure: sessionCookieData.attributes.secure,
+              sameSite: sessionCookieData.attributes.sameSite,
+              // TODO: Change the cookie generation to be server sided in the future
+              // httpOnly: sessionCookieData.attributes.httpOnly,
+            }
+          );
 
-        router.navigate({
-          // to: '/onboarding'
-        });
+          formApi.reset();
+
+          router.navigate({
+            // to: "/onboarding",
+          });
+        }
       } catch (error) {
-        console.error(error);
+        return;
       }
     },
     validatorAdapter: zodValidator,

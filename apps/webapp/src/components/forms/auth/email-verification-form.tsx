@@ -5,6 +5,7 @@ import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
 import { EmailVerificationCodeSchema } from "../../../libs/zod/schema";
 import { apiTreaty } from "@blazar/elysia";
+import { useMutation } from "@tanstack/react-query";
 
 interface EmailVerificationFormProps {
   token: string;
@@ -12,22 +13,43 @@ interface EmailVerificationFormProps {
 
 const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
   const router = useRouter();
+  const mutation = useMutation({
+    mutationKey: ["email-verification"],
+    mutationFn: async ({ code }: { code: string }) => {
+      const { data, error } = await apiTreaty.api.auth["email-verification"][
+        token
+      ].post({
+        code,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
 
   const form = useForm({
     defaultValues: {
       code: "",
     },
-    onSubmit: async (values) => {
+    onSubmit: async ({ value, formApi }) => {
       try {
-        await apiTreaty.api.auth["email-verification"][token].post({
-          code: values.value.code,
+        mutation.mutateAsync({
+          code: value.code,
         });
 
-        values.formApi.reset();
+        if (mutation.error) {
+          console.error(mutation.error.message);
+          throw new Error(mutation.error.message);
+        } else {
+          formApi.reset();
 
-        router.navigate({
-          to: "/auth/signin",
-        });
+          router.navigate({
+            to: "/auth/signin",
+          });
+        }
       } catch (error) {
         console.error(error);
       }

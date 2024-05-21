@@ -5,9 +5,30 @@ import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
 import { apiTreaty } from "@blazar/elysia";
+import { useMutation } from "@tanstack/react-query";
 
 const SignUpForm = () => {
   const router = useRouter();
+  const mutation = useMutation({
+    mutationFn: async ({
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    }) => {
+      const { data, error } = await apiTreaty.api.auth.signup.post({
+        email,
+        password,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
 
   const form = useForm({
     defaultValues: {
@@ -15,20 +36,25 @@ const SignUpForm = () => {
       password: "",
       confirmPassword: "",
     },
-    onSubmit: async (values) => {
+    onSubmit: async ({ value, formApi }) => {
       try {
-        await apiTreaty.api.auth.signup.post({
-          email: values.value.email,
-          password: values.value.password,
+        await mutation.mutateAsync({
+          email: value.email,
+          password: value.password,
         });
 
-        values.formApi.reset();
+        if (mutation.error) {
+          console.error(mutation.error.message);
+          throw new Error(mutation.error.message);
+        } else {
+          formApi.reset();
 
-        router.navigate({
-          to: "/auth/email-verification",
-        });
-      } catch (error) {
-        console.error(error);
+          router.navigate({
+            to: "/auth/email-verification",
+          });
+        }
+      } catch (e) {
+        return;
       }
     },
     validatorAdapter: zodValidator,
@@ -47,7 +73,6 @@ const SignUpForm = () => {
         name="email"
         validators={{
           onBlur: EmailSchema,
-          // TODO: Add a custom onSubmit validator to check if the email is already in use
         }}
         children={(field) => {
           return (
@@ -139,6 +164,21 @@ const SignUpForm = () => {
           );
         }}
       />
+
+      <form.Subscribe
+        selector={(state) => [state.errors]}
+        children={([errors]) => {
+          return (
+            <div className="text-red-500 text-sm">
+              {errors.map((error) => (
+                <div>{error}</div>
+              ))}
+            </div>
+          );
+        }}
+      />
+
+      {mutation.error && <div>{mutation.error.message}</div>}
     </form>
   );
 };

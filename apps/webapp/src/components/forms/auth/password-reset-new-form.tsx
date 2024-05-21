@@ -5,33 +5,50 @@ import { TextInput } from "../../ui/data-input/text-input";
 import { PasswordSchema } from "../../../libs/zod/schema";
 import { Button } from "../../ui/actions/button";
 import { apiTreaty } from "@blazar/elysia";
+import { useMutation } from "@tanstack/react-query";
 
 const PasswordResetNewForm = () => {
   const router = useRouter();
+  const mutation = useMutation({
+    mutationKey: ["password-reset-new"],
+    mutationFn: async ({ newPassword }: { newPassword: string }) => {
+      const { data, error } = await apiTreaty.api.auth["password-reset"][
+        ":token"
+      ].post({
+        newPassword,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return data;
+    },
+  });
+
   const form = useForm({
     defaultValues: {
       newPassword: "",
       confirmNewPassword: "",
     },
-    onSubmit: async (values) => {
+    onSubmit: async ({ value, formApi }) => {
       try {
-        const { data, error } = await apiTreaty.api.auth["password-reset"][
-          ":token"
-        ].post({
-          newPassword: values.value.newPassword,
+        mutation.mutateAsync({
+          newPassword: value.newPassword,
         });
 
-        if (error) {
-          throw new Error(error.message);
+        if (mutation.error) {
+          console.error(mutation.error.message);
+          throw new Error(mutation.error.message);
+        } else {
+          formApi.reset();
+
+          router.navigate({
+            to: "/auth/signin",
+          });
         }
-
-        console.log(data);
-
-        // router.navigate({
-        //   to: "/auth/signin",
-        // });
       } catch (e) {
-        console.error(e);
+        return;
       }
     },
     validatorAdapter: zodValidator,
