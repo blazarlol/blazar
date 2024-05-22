@@ -11,6 +11,7 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as IndexImport } from './routes/index'
 import { Route as AuthSignupImport } from './routes/auth/signup'
 import { Route as AuthSigninImport } from './routes/auth/signin'
 import { Route as AuthPasswordResetIndexImport } from './routes/auth/password-reset/index'
@@ -19,6 +20,11 @@ import { Route as AuthPasswordResetTokenImport } from './routes/auth/password-re
 import { Route as AuthEmailVerificationTokenImport } from './routes/auth/email-verification/$token'
 
 // Create/Update Routes
+
+const IndexRoute = IndexImport.update({
+  path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthSignupRoute = AuthSignupImport.update({
   path: '/auth/signup',
@@ -58,6 +64,13 @@ const AuthEmailVerificationTokenRoute = AuthEmailVerificationTokenImport.update(
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
     '/auth/signin': {
       id: '/auth/signin'
       path: '/auth/signin'
@@ -106,6 +119,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren({
+  IndexRoute,
   AuthSigninRoute,
   AuthSignupRoute,
   AuthEmailVerificationTokenRoute,
