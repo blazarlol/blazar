@@ -5,7 +5,8 @@ import {
   validateEmailVerificationToken,
   verifyUserEmail,
 } from "@blazar/db";
-import Elysia, { t } from "elysia";
+import { CustomError } from "@blazar/helpers";
+import Elysia, { error, t } from "elysia";
 
 export const emailVerification = new Elysia().post(
   "/email-verification/:token",
@@ -17,7 +18,7 @@ export const emailVerification = new Elysia().post(
       const { db, pool } = await establishDatabasePoolConnection();
 
       if (!db || !pool) {
-        return { message: "Failed to establish a database connection" };
+        throw new CustomError("Failed to establish a database connection");
       }
 
       const validToken = await validateEmailVerificationToken(db, token);
@@ -36,8 +37,12 @@ export const emailVerification = new Elysia().post(
 
         return { message: "email verified successfully" };
       }
-    } catch (error) {
-      return { error: (error as Error).message };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
   },
   {

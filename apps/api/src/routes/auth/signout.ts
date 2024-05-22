@@ -3,7 +3,8 @@ import {
   getUserById,
   invalidateSession,
 } from "@blazar/db";
-import Elysia, { t } from "elysia";
+import { CustomError } from "@blazar/helpers";
+import Elysia, { error, t } from "elysia";
 
 export const signOut = new Elysia().post(
   "/signout",
@@ -21,8 +22,12 @@ export const signOut = new Elysia().post(
       await invalidateSession(sessionId);
 
       pool.end();
-    } catch (error) {
-      return { message: (error as Error).message };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
 
     return { message: "user signed out successfully" };

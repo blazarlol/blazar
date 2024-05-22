@@ -4,6 +4,7 @@ import {
   establishDatabasePoolConnection,
 } from "@blazar/db";
 import {
+  CustomError,
   generateEmailVerificationCode,
   generatePasswordHash,
   generateToken,
@@ -11,15 +12,6 @@ import {
 } from "@blazar/helpers";
 import Elysia, { error, t } from "elysia";
 import { api } from "../..";
-
-export class CustomError extends Error {
-  constructor(
-    public message: string,
-    public status = 500
-  ) {
-    super(message);
-  }
-}
 
 export const signUp = new Elysia()
   .error({ CUSTOM_ERROR: CustomError })

@@ -3,7 +3,8 @@ import {
   establishDatabasePoolConnection,
   validateUser,
 } from "@blazar/db";
-import Elysia, { t } from "elysia";
+import { CustomError } from "@blazar/helpers";
+import Elysia, { error, t } from "elysia";
 
 export const signIn = new Elysia().post(
   "/signin",
@@ -14,7 +15,7 @@ export const signIn = new Elysia().post(
       const { db, pool } = await establishDatabasePoolConnection();
 
       if (!db || !pool) {
-        return { message: "Failed to establish a database connection" };
+        throw new CustomError("Failed to establish a database connection");
       }
 
       const user = await validateUser(db, { email, password });
@@ -26,8 +27,12 @@ export const signIn = new Elysia().post(
         message: "user signed in successfully",
         sessionCookie: session.sessionCookie,
       };
-    } catch (error) {
-      return { message: (error as Error).message };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
   },
   {

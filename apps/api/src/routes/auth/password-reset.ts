@@ -6,11 +6,12 @@ import {
   validatePasswordResetToken,
 } from "@blazar/db";
 import {
+  CustomError,
   generatePasswordHash,
   generateToken,
   generateTokenHash,
 } from "@blazar/helpers";
-import Elysia, { t } from "elysia";
+import Elysia, { error, t } from "elysia";
 import { api } from "../..";
 
 export const passwordReset = new Elysia().group("/password-reset", (group) => {
@@ -24,7 +25,7 @@ export const passwordReset = new Elysia().group("/password-reset", (group) => {
           const { db, pool } = await establishDatabasePoolConnection();
 
           if (!db || !pool) {
-            return { message: "Failed to establish a database connection" };
+            throw new CustomError("Failed to establish a database connection");
           }
 
           const user = await getUserByEmail(db, email);
@@ -42,8 +43,12 @@ export const passwordReset = new Elysia().group("/password-reset", (group) => {
 
           await pool.end();
           return { message: "password reset email sent" };
-        } catch (error) {
-          return { error: (error as Error).message };
+        } catch (err) {
+          if (err instanceof CustomError) {
+            return error(err.status, err.message);
+          }
+
+          return error(500, (err as Error).message);
         }
       },
       {
