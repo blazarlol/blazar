@@ -1,9 +1,13 @@
-import { setCookie } from "cookies-next";
+import { setCookie, getCookie } from "cookies-next";
 
-export const createAuthSessionCookie = async (
+export const createAuthSessionCookie = (
   name: string,
   value: string,
   attributes: any
 ) => {
-  await setCookie(name, value, attributes);
+  setCookie(name, value, attributes);
+};
+
+export const getAuthSessionCookie = (name: string) => {
+  return getCookie(name);
 };
