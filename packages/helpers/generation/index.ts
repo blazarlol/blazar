@@ -1,4 +1,5 @@
 import { generateRandomString, alphabet } from "oslo/crypto";
+import { CustomError } from "../errors";
 
 export const generateId = async () => {
   const id = await generateRandomString(32, alphabet("a-z", "A-Z", "0-9"));
@@ -14,7 +15,7 @@ export const generatePasswordHash = async (password: string) => {
   });
 
   if (!hash) {
-    throw new Error("Failed to generate the password hash.");
+    throw new CustomError("Failed to generate the password hash.", 500);
   }
 
   return hash;
