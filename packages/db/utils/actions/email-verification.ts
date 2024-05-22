@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { emailVerificationTable } from "../../lib/drizzle/schema/email-verification";
 import { Database } from "../../types";
+import { CustomError } from "@blazar/helpers";
 
 export const createEmailVerification = async (
   db: Database,
@@ -26,7 +27,7 @@ export const createEmailVerification = async (
   });
 
   if (!result) {
-    throw new Error("Error creating email verification");
+    throw new CustomError("Error creating email verification", 409);
   }
 
   return result;
@@ -38,7 +39,7 @@ export const removeEmailVerification = async (db: Database, userId: string) => {
     .where(eq(emailVerificationTable.userId, userId));
 
   if (!result) {
-    throw new Error("Email verification not found");
+    throw new CustomError("Email verification not found", 409);
   }
 
   return result;
@@ -60,11 +61,11 @@ export const validateEmailVerificationCode = async (
   const emailVerification = result[0];
 
   if (!emailVerification) {
-    throw new Error("Email verification not found for this token");
+    throw new CustomError("Email verification not found for this token", 409);
   }
 
   if (emailVerification.code !== code) {
-    throw new Error("Invalid code");
+    throw new CustomError("Invalid code", 409);
   }
 
   return { userId: emailVerification.userId };
@@ -82,7 +83,7 @@ export const validateEmailVerificationToken = async (
   const tokenHash = await hasher.update(token).digest("hex");
 
   if (!tokenHash) {
-    throw new Error("Failed to hash the token");
+    throw new CustomError("Failed to hash the token");
   }
 
   const result = await db
@@ -95,13 +96,11 @@ export const validateEmailVerificationToken = async (
   const emailVerification = result[0];
 
   if (!emailVerification) {
-    throw new Error(
-      `Email verification not found for this token. ${tokenHash} | ${token}`
-    );
+    throw new CustomError("Email verification not found for this token.", 409);
   }
 
   if (new Date(emailVerification.expiresAt).getTime() < new Date().getTime()) {
-    throw new Error("Token expired");
+    throw new CustomError("Token expired", 401);
   }
 
   return { tokenHash };

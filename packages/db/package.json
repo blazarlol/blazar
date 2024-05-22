@@ -13,6 +13,7 @@
     "db:up": "drizzle-kit up"
   },
   "dependencies": {
+    "@blazar/helpers": "workspace:*",
     "@lucia-auth/adapter-drizzle": "^1.0.7",
     "@xata.io/client": "^0.29.4",
     "@xata.io/drizzle": "^0.0.21",

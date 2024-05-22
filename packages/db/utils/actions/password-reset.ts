@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { passwordResetTable } from "../../lib/drizzle/schema/password-reset";
 import { Database } from "../../types";
+import { CustomError } from "@blazar/helpers";
 
 export const createPasswordReset = async (
   db: Database,
@@ -17,7 +18,7 @@ export const createPasswordReset = async (
   });
 
   if (!result) {
-    throw new Error("Error creating password reset");
+    throw new CustomError("Error creating password reset", 409);
   }
 
   return result;
@@ -41,7 +42,7 @@ export const validatePasswordResetToken = async (
   const passwordReset = result[0];
 
   if (!passwordReset) {
-    throw new Error("Password reset not found");
+    throw new CustomError("Password reset not found", 409);
   }
 
   return passwordReset;
@@ -53,7 +54,7 @@ export const removePasswordReset = async (db: Database, userId: string) => {
     .where(eq(passwordResetTable.userId, userId));
 
   if (!result) {
-    throw new Error("Password reset not found");
+    throw new CustomError("Password reset not found", 409);
   }
 
   return result;

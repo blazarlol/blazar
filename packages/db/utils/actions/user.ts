@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { userTable } from "../../lib/drizzle/schema/user";
 import { Database } from "../../types";
+import { CustomError } from "@blazar/helpers";
 
 export const getUsers = async (db: Database) => {
   const result = await db.select().from(userTable);
@@ -68,13 +69,13 @@ export const createUser = async (
     .where(eq(userTable.email, email));
 
   if (check.length > 0) {
-    throw new Error("User already exists");
+    throw new CustomError("User already exists", 409);
   }
 
   const result = await db.insert(userTable).values({ id, email, passwordHash });
 
   if (!result) {
-    throw new Error("Failed to create user");
+    throw new CustomError("Failed to create user", 500);
   }
 
   return result;
@@ -97,17 +98,17 @@ export const validateUser = async (
   const user = result[0];
 
   if (!user) {
-    throw new Error("User not found");
+    throw new CustomError("User not found", 409);
   }
 
   const passwordValid = await Bun.password.verify(password, user.passwordHash);
 
   if (!passwordValid) {
-    throw new Error("Invalid password");
+    throw new CustomError("Invalid password", 409);
   }
 
   if ((await passwordValid) && !user.emailVerified) {
-    throw new Error("Email not verified");
+    throw new CustomError("Email not verified", 409);
   }
 
   return user;
