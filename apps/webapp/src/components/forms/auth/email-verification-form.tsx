@@ -34,7 +34,7 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
     defaultValues: {
       code: "",
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       try {
         mutation.mutateAsync({
           code: value.code,
@@ -44,8 +44,6 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
           console.error(mutation.error.message);
           throw new Error(mutation.error.message);
         } else {
-          formApi.reset();
-
           router.navigate({
             to: "/auth/signin",
           });

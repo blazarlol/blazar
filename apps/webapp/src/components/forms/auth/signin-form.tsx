@@ -3,13 +3,17 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
-import { useRouter } from "@tanstack/react-router";
+import { useRouter, useSearch } from "@tanstack/react-router";
 import { apiTreaty } from "@blazar/elysia";
 import { createAuthSessionCookie } from "@blazar/helpers";
 import { useMutation } from "@tanstack/react-query";
 
 const SignInForm = () => {
   const router = useRouter();
+  const search = useSearch({
+    from: "/auth/_layout/signin",
+  });
+
   const mutation = useMutation({
     mutationKey: ["signin"],
     mutationFn: async ({
@@ -37,9 +41,9 @@ const SignInForm = () => {
       email: "",
       password: "",
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       try {
-        await mutation.mutateAsync({
+        const result = await mutation.mutateAsync({
           email: value.email,
           password: value.password,
         });
@@ -48,30 +52,26 @@ const SignInForm = () => {
           console.error(mutation.error.message);
           throw new Error(mutation.error.message);
         } else {
-          const sessionCookieData = await mutation.data?.sessionCookie;
-
-          if (!sessionCookieData) {
+          if (!result.sessionCookie) {
             throw new Error("Session cookie not found");
           }
 
-          await createAuthSessionCookie(
-            sessionCookieData.name,
-            sessionCookieData.value,
+          createAuthSessionCookie(
+            result.sessionCookie.name,
+            result.sessionCookie.value,
             {
-              maxAge: sessionCookieData.attributes.maxAge,
-              domain: sessionCookieData.attributes.domain,
-              path: sessionCookieData.attributes.path,
-              secure: sessionCookieData.attributes.secure,
-              sameSite: sessionCookieData.attributes.sameSite,
+              maxAge: result.sessionCookie.attributes.maxAge,
+              domain: result.sessionCookie.attributes.domain,
+              path: result.sessionCookie.attributes.path,
+              secure: result.sessionCookie.attributes.secure,
+              sameSite: result.sessionCookie.attributes.sameSite,
               // TODO: Change the cookie generation to be server sided in the future
               // httpOnly: sessionCookieData.attributes.httpOnly,
             }
           );
 
-          formApi.reset();
-
           router.navigate({
-            // to: "/onboarding",
+            to: search.redirect || "/",
           });
         }
       } catch (error) {

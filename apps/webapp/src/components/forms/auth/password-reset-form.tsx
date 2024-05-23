@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
-import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
+import { EmailSchema } from "../../../libs/zod/schema";
 import { Button } from "../../ui/actions/button";
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
@@ -38,6 +38,7 @@ const PasswordResetForm = () => {
           console.error(mutation.error.message);
           throw new Error(mutation.error.message);
         } else {
+          // TODO: Display some message on message sent
           formApi.reset();
         }
       } catch (e) {

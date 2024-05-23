@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { getAuthSessionCookie } from "@blazar/helpers";
 import { apiTreaty } from "@blazar/elysia";
+import { getAuthSessionCookie } from "@blazar/helpers";
 
 const Index = () => {
   return <div>Hello world!</div>;
@@ -13,7 +13,7 @@ export const Route = createFileRoute("/")({
       const authSessionCookie = getAuthSessionCookie("auth_session");
 
       if (!authSessionCookie) {
-        throw new Error("No auth session cookie found");
+        throw new Error();
       }
 
       const { error } = await apiTreaty.api.auth["validate-session"].post({
@@ -21,12 +21,11 @@ export const Route = createFileRoute("/")({
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new Error();
       }
 
       return true;
-    } catch (error) {
-      // TODO: Display the error somehow in the UI
+    } catch {
       throw redirect({
         to: "/auth/signin",
         search: {

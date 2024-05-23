@@ -36,7 +36,7 @@ const SignUpForm = () => {
       password: "",
       confirmPassword: "",
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       try {
         await mutation.mutateAsync({
           email: value.email,
@@ -47,8 +47,6 @@ const SignUpForm = () => {
           console.error(mutation.error.message);
           throw new Error(mutation.error.message);
         } else {
-          formApi.reset();
-
           router.navigate({
             to: "/auth/email-verification",
           });

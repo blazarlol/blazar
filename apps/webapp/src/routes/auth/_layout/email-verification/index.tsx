@@ -4,6 +4,6 @@ const Index = () => {
   return <div>Check your email!</div>;
 };
 
-export const Route = createFileRoute("/auth/email-verification/")({
+export const Route = createFileRoute("/auth/_layout/email-verification/")({
   component: Index,
 });
