@@ -3,9 +3,24 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
 import { useRouter } from "@tanstack/react-router";
-import { EmailSchema, PasswordSchema } from "../../../libs/zod/schema";
+import {
+  EmailSchema,
+  PasswordSchema,
+  PasswordSchemaWithMaxLength,
+} from "../../../libs/zod/schema";
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
+import { Alert } from "../../ui/feedback/alert";
+
+const createErrorList = (errors: string) => {
+  const result = errors.split(", ");
+
+  if (result[0] === "") {
+    return [];
+  }
+
+  return result;
+};
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -81,12 +96,27 @@ const SignUpForm = () => {
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 label={{ children: "Email", htmlFor: field.name }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              <ul>
+                {field.state.meta.isTouched &&
+                  EmailSchema._def.checks.map((check) => {
+                    const formErrors = createErrorList(
+                      field.state.meta.errors.join(", ")
+                    );
+
+                    if (formErrors.length === 0) {
+                      return "";
+                    }
+
+                    if (check.message && formErrors.includes(check.message)) {
+                      return <div>X {check.message}</div>;
+                    }
+
+                    return <div>GIT {check.message}</div>;
+                  })}
+              </ul>
             </>
           );
         }}
@@ -95,7 +125,7 @@ const SignUpForm = () => {
       <form.Field
         name="password"
         validators={{
-          onBlur: PasswordSchema,
+          onBlur: PasswordSchemaWithMaxLength,
         }}
         children={(field) => {
           return (
@@ -106,12 +136,28 @@ const SignUpForm = () => {
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 label={{ children: "Password", htmlFor: field.name }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              {/* TODO: Make it a reusable component with props */}
+              <ul>
+                {field.state.meta.isTouched &&
+                  PasswordSchema._def.checks.map((check) => {
+                    const formErrors = createErrorList(
+                      field.state.meta.errors.join(", ")
+                    );
+
+                    if (formErrors.length === 0) {
+                      return "";
+                    }
+
+                    if (check.message && formErrors.includes(check.message)) {
+                      return <div>X {check.message}</div>;
+                    }
+
+                    return <div>GIT {check.message}</div>;
+                  })}
+              </ul>
             </>
           );
         }}
@@ -122,6 +168,10 @@ const SignUpForm = () => {
         validators={{
           onChangeListenTo: ["password"],
           onBlur: ({ value, fieldApi }) => {
+            if (!value) {
+              return "Please confirm your password";
+            }
+
             if (value !== fieldApi.form.getFieldValue("password")) {
               return "Passwords do not match";
             }
@@ -141,12 +191,16 @@ const SignUpForm = () => {
                   children: "Confirm Password",
                   htmlFor: field.name,
                 }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              {field.state.meta.errors.length > 0 &&
+                field.state.meta.errors.map((error) => {
+                  if (error) {
+                    return error.split(", ").map((err) => <div>{err}</div>);
+                  }
+                  return null;
+                })}
             </>
           );
         }}
@@ -163,20 +217,9 @@ const SignUpForm = () => {
         }}
       />
 
-      <form.Subscribe
-        selector={(state) => [state.errors]}
-        children={([errors]) => {
-          return (
-            <div className="text-red-500 text-sm">
-              {errors.map((error) => (
-                <div>{error}</div>
-              ))}
-            </div>
-          );
-        }}
-      />
-
-      {mutation.error && <div>{mutation.error.message}</div>}
+      {mutation.error && (
+        <Alert variant="error">{mutation.error.message}</Alert>
+      )}
     </form>
   );
 };
