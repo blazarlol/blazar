@@ -2,10 +2,16 @@ import { useForm } from "@tanstack/react-form";
 import { useRouter } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
-import { PasswordSchema } from "../../../libs/zod/schema";
+import {
+  PasswordSchema,
+  PasswordSchemaWithMaxLength,
+} from "../../../libs/zod/schema";
 import { Button } from "../../ui/actions/button";
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
+import { cn } from "../../../utils/styles";
+import { ErrorList } from "../../ui/feedback/error-list";
+import { Alert } from "../../ui/feedback/alert";
 
 const PasswordResetNewForm = () => {
   const router = useRouter();
@@ -54,6 +60,7 @@ const PasswordResetNewForm = () => {
 
   return (
     <form
+      className="flex flex-col gap-y-2 self-center w-full max-w-[576px] p-4"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -63,25 +70,37 @@ const PasswordResetNewForm = () => {
       <form.Field
         name="newPassword"
         validators={{
-          onBlur: PasswordSchema,
+          onBlur: PasswordSchemaWithMaxLength,
         }}
         children={(field) => {
           return (
             <>
               <TextInput
                 type="password"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 label={{
                   children: "New Password",
+                  htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
                 }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              {field.state.meta.isTouched && (
+                <ul>
+                  <ErrorList
+                    errors={field.state.meta.errors}
+                    checks={PasswordSchema._def.checks}
+                  />
+                </ul>
+              )}
             </>
           );
         }}
@@ -92,6 +111,10 @@ const PasswordResetNewForm = () => {
         validators={{
           onChangeListenTo: ["newPassword"],
           onBlur: ({ value, fieldApi }) => {
+            if (!value) {
+              return "Please confirm your password";
+            }
+
             if (value !== fieldApi.form.getFieldValue("newPassword")) {
               return "Passwords do not match";
             }
@@ -104,19 +127,29 @@ const PasswordResetNewForm = () => {
             <>
               <TextInput
                 type="password"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 label={{
                   children: "Confirm New Password",
                   htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
                 }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              {field.state.meta.isTouched && (
+                <ul>
+                  <li className="text-xs text-error">
+                    {field.state.meta.errors}
+                  </li>
+                </ul>
+              )}
             </>
           );
         }}
@@ -126,14 +159,23 @@ const PasswordResetNewForm = () => {
         selector={(state) => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => {
           return (
-            <Button type="submit" disabled={!canSubmit}>
+            <Button
+              type="submit"
+              disabled={!canSubmit}
+              color="accent"
+              className="mt-4"
+            >
               {isSubmitting ? "..." : "Submit"}
             </Button>
           );
         }}
       />
 
-      {mutation.error && <div>{mutation.error.message}</div>}
+      {mutation.error && (
+        <Alert variant="error" className="mt-4">
+          {mutation.error.message}
+        </Alert>
+      )}
     </form>
   );
 };

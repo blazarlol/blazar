@@ -5,4 +5,18 @@ export default {
     extend: {},
   },
   plugins: [require("daisyui")],
+  daisyui: {
+    themes: [
+      "dark",
+      "light",
+      // {
+      //   dark: {
+      //     accent: "#EDD8E9",
+      //   },
+      // },
+    ],
+    darkTheme: "dark",
+    base: true,
+    themeRoot: ":root",
+  },
 };

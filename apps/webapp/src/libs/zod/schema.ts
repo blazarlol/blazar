@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const EmailSchema = z.string().email("Invalid email");
 
+export const simplePasswordSchema = z.string().min(1, "Password is required");
+
 export const PasswordSchema = z
   .string()
   .min(8, "Password must be at least 8 characters")

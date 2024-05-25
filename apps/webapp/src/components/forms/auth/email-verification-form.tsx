@@ -6,6 +6,8 @@ import { useRouter } from "@tanstack/react-router";
 import { EmailVerificationCodeSchema } from "../../../libs/zod/schema";
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
+import { Alert } from "../../ui/feedback/alert";
+import { cn } from "../../../utils/styles";
 
 interface EmailVerificationFormProps {
   token: string;
@@ -57,6 +59,7 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
 
   return (
     <form
+      className="flex flex-col gap-y-2 self-center w-full max-w-[576px] p-4"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -73,16 +76,29 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
             <>
               <TextInput
                 type="text"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                label={{ children: "Code", htmlFor: field.name }}
+                label={{
+                  children: "Code",
+                  htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
+                }}
+                color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
-              {field.state.meta.errors &&
-                field.state.meta.errors.map((error) => (
-                  <div className="text-red-500 text-sm">{error}</div>
-                ))}
+              {field.state.meta.isTouched && (
+                <ul>
+                  <li className="text-xs text-error">
+                    {field.state.meta.errors}
+                  </li>
+                </ul>
+              )}
             </>
           );
         }}
@@ -92,14 +108,23 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
         selector={(state) => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => {
           return (
-            <Button type="submit" disabled={!canSubmit}>
+            <Button
+              type="submit"
+              disabled={!canSubmit}
+              color="accent"
+              className="mt-4"
+            >
               {isSubmitting ? "..." : "Submit"}
             </Button>
           );
         }}
       />
 
-      {mutation.error && <div>{mutation.error.message}</div>}
+      {mutation.error && (
+        <Alert variant="error" className="mt-4">
+          {mutation.error.message}
+        </Alert>
+      )}
     </form>
   );
 };

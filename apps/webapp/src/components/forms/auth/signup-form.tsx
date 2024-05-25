@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
-import { useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import {
   EmailSchema,
   PasswordSchema,
@@ -11,16 +11,8 @@ import {
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "../../ui/feedback/alert";
-
-const createErrorList = (errors: string) => {
-  const result = errors.split(", ");
-
-  if (result[0] === "") {
-    return [];
-  }
-
-  return result;
-};
+import { cn } from "../../../utils/styles";
+import { ErrorList } from "../../ui/feedback/error-list";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -75,7 +67,7 @@ const SignUpForm = () => {
 
   return (
     <form
-      className="flex flex-col gap-y-2 max-w-64"
+      className="flex flex-col gap-y-2 self-center w-full max-w-[576px] p-4 lg:pr-12"
       onSubmit={(e) => {
         e.preventDefault();
         e.stopPropagation();
@@ -92,31 +84,29 @@ const SignUpForm = () => {
             <>
               <TextInput
                 type="email"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                label={{ children: "Email", htmlFor: field.name }}
+                label={{
+                  children: "Email",
+                  htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
+                }}
                 color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
-              <ul>
-                {field.state.meta.isTouched &&
-                  EmailSchema._def.checks.map((check) => {
-                    const formErrors = createErrorList(
-                      field.state.meta.errors.join(", ")
-                    );
-
-                    if (formErrors.length === 0) {
-                      return "";
-                    }
-
-                    if (check.message && formErrors.includes(check.message)) {
-                      return <div>X {check.message}</div>;
-                    }
-
-                    return <div>GIT {check.message}</div>;
-                  })}
-              </ul>
+              {field.state.meta.isTouched && (
+                <ul>
+                  <li className="text-xs text-error">
+                    {field.state.meta.errors}
+                  </li>
+                </ul>
+              )}
             </>
           );
         }}
@@ -132,32 +122,31 @@ const SignUpForm = () => {
             <>
               <TextInput
                 type="password"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
-                label={{ children: "Password", htmlFor: field.name }}
+                label={{
+                  children: "Password",
+                  htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
+                }}
                 color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
               {/* TODO: Make it a reusable component with props */}
-              <ul>
-                {field.state.meta.isTouched &&
-                  PasswordSchema._def.checks.map((check) => {
-                    const formErrors = createErrorList(
-                      field.state.meta.errors.join(", ")
-                    );
-
-                    if (formErrors.length === 0) {
-                      return "";
-                    }
-
-                    if (check.message && formErrors.includes(check.message)) {
-                      return <div>X {check.message}</div>;
-                    }
-
-                    return <div>GIT {check.message}</div>;
-                  })}
-              </ul>
+              {field.state.meta.isTouched && (
+                <ul>
+                  <ErrorList
+                    errors={field.state.meta.errors}
+                    checks={PasswordSchema._def.checks}
+                  />
+                </ul>
+              )}
             </>
           );
         }}
@@ -184,23 +173,29 @@ const SignUpForm = () => {
             <>
               <TextInput
                 type="password"
+                id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 label={{
                   children: "Confirm Password",
                   htmlFor: field.name,
+                  className: cn(
+                    field.state.meta.errors.length > 0 ? "text-error" : "",
+                    "p-1"
+                  ),
                 }}
                 color={field.state.meta.errors.length > 0 ? "error" : "default"}
+                variant="bordered"
               />
 
-              {field.state.meta.errors.length > 0 &&
-                field.state.meta.errors.map((error) => {
-                  if (error) {
-                    return error.split(", ").map((err) => <div>{err}</div>);
-                  }
-                  return null;
-                })}
+              {field.state.meta.isTouched && (
+                <ul>
+                  <li className="text-xs text-error">
+                    {field.state.meta.errors}
+                  </li>
+                </ul>
+              )}
             </>
           );
         }}
@@ -210,15 +205,29 @@ const SignUpForm = () => {
         selector={(state) => [state.canSubmit, state.isSubmitting]}
         children={([canSubmit, isSubmitting]) => {
           return (
-            <Button type="submit" disabled={!canSubmit}>
+            <Button
+              type="submit"
+              disabled={!canSubmit}
+              color="accent"
+              className="mt-4"
+            >
               {isSubmitting ? "..." : "Submit"}
             </Button>
           );
         }}
       />
 
+      <div className="self-center">
+        Have an account already?{" "}
+        <Link to="/auth/signin" className="font-semibold hover:link">
+          Sign In
+        </Link>
+      </div>
+
       {mutation.error && (
-        <Alert variant="error">{mutation.error.message}</Alert>
+        <Alert variant="error" className="mt-4">
+          {mutation.error.message}
+        </Alert>
       )}
     </form>
   );

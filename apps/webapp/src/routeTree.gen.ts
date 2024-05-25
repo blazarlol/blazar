@@ -15,12 +15,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthLayoutImport } from './routes/auth/_layout'
-import { Route as AuthLayoutSignupImport } from './routes/auth/_layout/signup'
-import { Route as AuthLayoutSigninImport } from './routes/auth/_layout/signin'
+import { Route as AuthLayoutSignImport } from './routes/auth/_layout/_sign'
 import { Route as AuthLayoutPasswordResetIndexImport } from './routes/auth/_layout/password-reset/index'
 import { Route as AuthLayoutEmailVerificationIndexImport } from './routes/auth/_layout/email-verification/index'
 import { Route as AuthLayoutPasswordResetTokenImport } from './routes/auth/_layout/password-reset/$token'
 import { Route as AuthLayoutEmailVerificationTokenImport } from './routes/auth/_layout/email-verification/$token'
+import { Route as AuthLayoutSignSignupImport } from './routes/auth/_layout/_sign/signup'
+import { Route as AuthLayoutSignSigninImport } from './routes/auth/_layout/_sign/signin'
 
 // Create Virtual Routes
 
@@ -43,13 +44,8 @@ const AuthLayoutRoute = AuthLayoutImport.update({
   getParentRoute: () => AuthRoute,
 } as any)
 
-const AuthLayoutSignupRoute = AuthLayoutSignupImport.update({
-  path: '/signup',
-  getParentRoute: () => AuthLayoutRoute,
-} as any)
-
-const AuthLayoutSigninRoute = AuthLayoutSigninImport.update({
-  path: '/signin',
+const AuthLayoutSignRoute = AuthLayoutSignImport.update({
+  id: '/_sign',
   getParentRoute: () => AuthLayoutRoute,
 } as any)
 
@@ -77,6 +73,16 @@ const AuthLayoutEmailVerificationTokenRoute =
     getParentRoute: () => AuthLayoutRoute,
   } as any)
 
+const AuthLayoutSignSignupRoute = AuthLayoutSignSignupImport.update({
+  path: '/signup',
+  getParentRoute: () => AuthLayoutSignRoute,
+} as any)
+
+const AuthLayoutSignSigninRoute = AuthLayoutSignSigninImport.update({
+  path: '/signin',
+  getParentRoute: () => AuthLayoutSignRoute,
+} as any)
+
 // Populate the FileRoutesByPath interface
 
 declare module '@tanstack/react-router' {
@@ -102,19 +108,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLayoutImport
       parentRoute: typeof AuthRoute
     }
-    '/auth/_layout/signin': {
-      id: '/auth/_layout/signin'
-      path: '/signin'
-      fullPath: '/auth/signin'
-      preLoaderRoute: typeof AuthLayoutSigninImport
+    '/auth/_layout/_sign': {
+      id: '/auth/_layout/_sign'
+      path: ''
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthLayoutSignImport
       parentRoute: typeof AuthLayoutImport
     }
-    '/auth/_layout/signup': {
-      id: '/auth/_layout/signup'
+    '/auth/_layout/_sign/signin': {
+      id: '/auth/_layout/_sign/signin'
+      path: '/signin'
+      fullPath: '/auth/signin'
+      preLoaderRoute: typeof AuthLayoutSignSigninImport
+      parentRoute: typeof AuthLayoutSignImport
+    }
+    '/auth/_layout/_sign/signup': {
+      id: '/auth/_layout/_sign/signup'
       path: '/signup'
       fullPath: '/auth/signup'
-      preLoaderRoute: typeof AuthLayoutSignupImport
-      parentRoute: typeof AuthLayoutImport
+      preLoaderRoute: typeof AuthLayoutSignSignupImport
+      parentRoute: typeof AuthLayoutSignImport
     }
     '/auth/_layout/email-verification/$token': {
       id: '/auth/_layout/email-verification/$token'
@@ -153,8 +166,10 @@ export const routeTree = rootRoute.addChildren({
   IndexRoute,
   AuthRoute: AuthRoute.addChildren({
     AuthLayoutRoute: AuthLayoutRoute.addChildren({
-      AuthLayoutSigninRoute,
-      AuthLayoutSignupRoute,
+      AuthLayoutSignRoute: AuthLayoutSignRoute.addChildren({
+        AuthLayoutSignSigninRoute,
+        AuthLayoutSignSignupRoute,
+      }),
       AuthLayoutEmailVerificationTokenRoute,
       AuthLayoutPasswordResetTokenRoute,
       AuthLayoutEmailVerificationIndexRoute,

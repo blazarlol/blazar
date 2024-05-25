@@ -11,14 +11,18 @@ const TextInput = ({
   ...restProps
 }: TextInputProps) => {
   return (
-    <>
-      {label && <Label {...label}>{label.children}</Label>}
+    <div className="flex flex-col gap-y-1">
+      {label && (
+        <Label className={cn(label.className)} {...label}>
+          {label.children}
+        </Label>
+      )}
 
       <input
         className={cn(textInputVariants({ className, variant, color, area }))}
         {...restProps}
       />
-    </>
+    </div>
   );
 };
 

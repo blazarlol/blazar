@@ -5,8 +5,7 @@ import { apiTreaty } from "@blazar/elysia";
 
 const AuthLayout = () => {
   return (
-    <div>
-      Hello /auth/_layout!
+    <div className="flex justify-center items-center h-screen">
       <Outlet />
     </div>
   );
