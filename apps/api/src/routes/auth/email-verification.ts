@@ -8,8 +8,10 @@ import {
 import { CustomError } from "@blazar/helpers";
 import Elysia, { error, t } from "elysia";
 
-export const emailVerification = new Elysia().post(
-  "/email-verification/:token",
+export const emailVerification = new Elysia({
+  prefix: "email-verification",
+}).post(
+  "/:token",
   async ({ body, params }) => {
     const { code } = body;
     const { token } = params;
@@ -35,7 +37,7 @@ export const emailVerification = new Elysia().post(
 
         pool.end();
 
-        return { message: "email verified successfully" };
+        return { message: "Email verified successfully." };
       }
     } catch (err) {
       if (err instanceof CustomError) {

@@ -1,4 +1,5 @@
-import Elysia, { t } from "elysia";
+import { CustomError } from "@blazar/helpers";
+import Elysia, { error, t } from "elysia";
 import { Resend } from "resend";
 
 export const passwordReset = new Elysia().post(
@@ -15,17 +16,21 @@ export const passwordReset = new Elysia().post(
         subject: "Password Reset",
         text: `
           Click the link below to reset your password:
-          http://localhost:8080/auth/password-reset/${token}
+          ${Bun.env.CLIENT_URL}/auth/password-reset/${token}
         `,
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.message);
       }
 
-      return { data };
-    } catch (error) {
-      return { error: (error as Error).message };
+      return { message: "Email sent successfully.", data };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
   },
   {

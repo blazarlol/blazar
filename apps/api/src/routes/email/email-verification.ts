@@ -1,4 +1,5 @@
-import Elysia, { t } from "elysia";
+import { CustomError } from "@blazar/helpers";
+import Elysia, { error, t } from "elysia";
 import { Resend } from "resend";
 
 export const emailVerification = new Elysia().post(
@@ -17,17 +18,21 @@ export const emailVerification = new Elysia().post(
         Your verification code is ${code}
         
         Activate your account by entering the link below:
-        http://localhost:8080/auth/email-verification/${token}
+        ${Bun.env.CLIENT_URL}/auth/email-verification/${token}
       `,
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.message);
       }
 
-      return { data };
-    } catch (error) {
-      return { error: (error as Error).message };
+      return { message: "Email sent successfully.", data };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
   },
   {

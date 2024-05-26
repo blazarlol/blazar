@@ -24,7 +24,7 @@ export const signIn = new Elysia().post(
 
       pool.end();
       return {
-        message: "user signed in successfully",
+        message: "Signed in successfully.",
         sessionCookie: session.sessionCookie,
       };
     } catch (err) {

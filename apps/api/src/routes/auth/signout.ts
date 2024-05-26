@@ -22,6 +22,8 @@ export const signOut = new Elysia().post(
       await invalidateSession(sessionId);
 
       pool.end();
+
+      return { message: "Signed out successfully." };
     } catch (err) {
       if (err instanceof CustomError) {
         return error(err.status, err.message);
@@ -29,8 +31,6 @@ export const signOut = new Elysia().post(
 
       return error(500, (err as Error).message);
     }
-
-    return { message: "user signed out successfully" };
   },
   {
     body: t.Object({

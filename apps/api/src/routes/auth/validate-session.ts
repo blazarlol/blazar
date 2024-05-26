@@ -1,5 +1,5 @@
 import { CustomError } from "@blazar/helpers";
-import Elysia, { t } from "elysia";
+import Elysia, { error, t } from "elysia";
 import { validateSession as validateSessionAction } from "@blazar/db";
 
 export const validateSession = new Elysia().post(
@@ -7,17 +7,25 @@ export const validateSession = new Elysia().post(
   async ({ body }) => {
     const { sessionId } = body;
 
-    if (!sessionId) {
-      throw new CustomError("Session ID is required", 409);
+    try {
+      if (!sessionId) {
+        throw new CustomError("Session ID is required", 409);
+      }
+
+      const { session } = await validateSessionAction(sessionId);
+
+      if (!session) {
+        throw new CustomError("Session not found", 404);
+      }
+
+      return { message: "Session validated successfully.", session };
+    } catch (err) {
+      if (err instanceof CustomError) {
+        return error(err.status, err.message);
+      }
+
+      return error(500, (err as Error).message);
     }
-
-    const { session } = await validateSessionAction(sessionId);
-
-    if (!session) {
-      throw new CustomError("Session not found", 404);
-    }
-
-    return { session };
   },
   {
     body: t.Object({

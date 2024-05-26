@@ -63,7 +63,7 @@ export const signUp = new Elysia()
 
         pool.end();
 
-        return { message: "user created successfully", status: 201 };
+        return { message: "Signed up successfully." };
       } catch (err) {
         if (err instanceof CustomError) {
           return error(err.status, err.message);
