@@ -22,7 +22,7 @@ export const generatePasswordHash = async (password: string) => {
 };
 
 export const generateEmailVerificationCode = async () => {
-  const code = await generateRandomString(8, alphabet("0-9"));
+  const code = await generateRandomString(6, alphabet("0-9"));
 
   return code;
 };
