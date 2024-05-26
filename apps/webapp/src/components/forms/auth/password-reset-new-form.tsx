@@ -1,5 +1,5 @@
 import { useForm } from "@tanstack/react-form";
-import { useRouter } from "@tanstack/react-router";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import {
@@ -12,20 +12,22 @@ import { useMutation } from "@tanstack/react-query";
 import { cn } from "../../../utils/styles";
 import { ErrorList } from "../../ui/feedback/error-list";
 import { Alert } from "../../ui/feedback/alert";
+import { CustomError } from "@blazar/helpers";
 
 const PasswordResetNewForm = () => {
   const router = useRouter();
+  const { token } = useParams({ from: "/auth/_layout/password-reset/$token" });
   const mutation = useMutation({
     mutationKey: ["password-reset-new"],
     mutationFn: async ({ newPassword }: { newPassword: string }) => {
-      const { data, error } = await apiTreaty.api.auth["password-reset"][
-        ":token"
-      ].post({
+      const { data, error } = await apiTreaty.api.auth["password-reset"]({
+        token,
+      }).post({
         newPassword,
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.value, error.status);
       }
 
       return data;
@@ -39,7 +41,7 @@ const PasswordResetNewForm = () => {
     },
     onSubmit: async ({ value }) => {
       try {
-        mutation.mutateAsync({
+        await mutation.mutateAsync({
           newPassword: value.newPassword,
         });
 
@@ -171,11 +173,15 @@ const PasswordResetNewForm = () => {
         }}
       />
 
-      {mutation.error && (
-        <Alert variant="error" className="mt-4">
-          {mutation.error.message}
-        </Alert>
-      )}
+      <div className="mt-2">
+        {mutation.error && (
+          <Alert variant="error">{mutation.error.message}</Alert>
+        )}
+
+        {mutation.isSuccess && mutation.data && (
+          <Alert variant="success">{mutation.data.message}</Alert>
+        )}
+      </div>
     </form>
   );
 };

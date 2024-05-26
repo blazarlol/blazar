@@ -13,6 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Alert } from "../../ui/feedback/alert";
 import { cn } from "../../../utils/styles";
 import { ErrorList } from "../../ui/feedback/error-list";
+import { CustomError } from "@blazar/helpers";
 
 const SignUpForm = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const SignUpForm = () => {
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.value, error.status);
       }
 
       return data;
@@ -224,11 +225,15 @@ const SignUpForm = () => {
         </Link>
       </div>
 
-      {mutation.error && (
-        <Alert variant="error" className="mt-4">
-          {mutation.error.message}
-        </Alert>
-      )}
+      <div className="mt-2">
+        {mutation.error && (
+          <Alert variant="error">{mutation.error.message}</Alert>
+        )}
+
+        {mutation.isSuccess && mutation.data && (
+          <Alert variant="success">{mutation.data.message}</Alert>
+        )}
+      </div>
     </form>
   );
 };

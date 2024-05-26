@@ -7,6 +7,7 @@ import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "../../ui/feedback/alert";
 import { cn } from "../../../utils/styles";
+import { CustomError } from "@blazar/helpers";
 
 const PasswordResetForm = () => {
   const mutation = useMutation({
@@ -19,7 +20,7 @@ const PasswordResetForm = () => {
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.value, error.status);
       }
 
       return data;
@@ -30,18 +31,15 @@ const PasswordResetForm = () => {
     defaultValues: {
       email: "",
     },
-    onSubmit: async ({ value, formApi }) => {
+    onSubmit: async ({ value }) => {
       try {
-        mutation.mutateAsync({
+        await mutation.mutateAsync({
           email: value.email,
         });
 
         if (mutation.error) {
           console.error(mutation.error.message);
           throw new Error(mutation.error.message);
-        } else {
-          // TODO: Display some message on message sent
-          formApi.reset();
         }
       } catch (e) {
         return;
@@ -85,7 +83,7 @@ const PasswordResetForm = () => {
                 variant="bordered"
               />
 
-              {field.state.meta.isTouched && (
+              {field.state.meta.isTouched && field.state.meta.errors && (
                 <ul>
                   <li className="text-xs text-error">
                     {field.state.meta.errors}
@@ -113,11 +111,15 @@ const PasswordResetForm = () => {
         }}
       />
 
-      {mutation.error && (
-        <Alert variant="error" className="mt-2">
-          {mutation.error.message}
-        </Alert>
-      )}
+      <div className="mt-2">
+        {mutation.error && (
+          <Alert variant="error">{mutation.error.message}</Alert>
+        )}
+
+        {mutation.isSuccess && mutation.data && (
+          <Alert variant="success">{mutation.data.message}</Alert>
+        )}
+      </div>
     </form>
   );
 };

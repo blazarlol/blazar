@@ -9,10 +9,12 @@ import {
 } from "../../../libs/zod/schema";
 import { Link, useRouter, useSearch } from "@tanstack/react-router";
 import { apiTreaty } from "@blazar/elysia";
-import { createAuthSessionCookie } from "@blazar/helpers";
+import { CustomError, createAuthSessionCookie } from "@blazar/helpers";
 import { useMutation } from "@tanstack/react-query";
 import { cn } from "../../../utils/styles";
 import { Alert } from "../../ui/feedback/alert";
+import { Label } from "../../ui/data-input/label";
+import { redirectMessage } from "../../../utils/message";
 
 const SignInForm = () => {
   const router = useRouter();
@@ -35,7 +37,7 @@ const SignInForm = () => {
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.value, error.status);
       }
 
       return data;
@@ -171,8 +173,14 @@ const SignInForm = () => {
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-x-1.5">
-                  <input type="checkbox" className="checkbox w-5 h-5" />
-                  <label className="text-sm">Remember me</label>
+                  {/* MAKE A PART OF FORM  */}
+                  <input
+                    id="rememberMe"
+                    name="rememberMe"
+                    type="checkbox"
+                    className="checkbox w-5 h-5"
+                  />
+                  <Label htmlFor="rememberMe">Remember me</Label>
                 </div>
 
                 <Link
@@ -210,11 +218,17 @@ const SignInForm = () => {
         </Link>
       </div>
 
-      {mutation.error && (
-        <Alert variant="error" className="mt-4">
-          {mutation.error.message}
-        </Alert>
-      )}
+      <div className="mt-2">
+        {mutation.error && (
+          <Alert variant="error">{mutation.error.message}</Alert>
+        )}
+
+        {mutation.isSuccess && mutation.data && (
+          <Alert variant="success">
+            {redirectMessage(mutation.data.message)}
+          </Alert>
+        )}
+      </div>
     </form>
   );
 };

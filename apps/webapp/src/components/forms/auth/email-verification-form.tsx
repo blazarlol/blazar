@@ -2,30 +2,32 @@ import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
-import { useRouter } from "@tanstack/react-router";
+import { useParams, useRouter } from "@tanstack/react-router";
 import { EmailVerificationCodeSchema } from "../../../libs/zod/schema";
 import { apiTreaty } from "@blazar/elysia";
 import { useMutation } from "@tanstack/react-query";
 import { Alert } from "../../ui/feedback/alert";
 import { cn } from "../../../utils/styles";
+import { CustomError } from "@blazar/helpers";
+import { redirectMessage } from "../../../utils/message";
+import { OTPInput } from "../../ui/data-input/otp-input";
 
-interface EmailVerificationFormProps {
-  token: string;
-}
-
-const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
+const EmailVerificationForm = () => {
   const router = useRouter();
+  const { token } = useParams({
+    from: "/auth/_layout/email-verification/$token",
+  });
   const mutation = useMutation({
     mutationKey: ["email-verification"],
     mutationFn: async ({ code }: { code: string }) => {
-      const { data, error } = await apiTreaty.api.auth["email-verification"][
-        token
-      ].post({
+      const { data, error } = await apiTreaty.api.auth["email-verification"]({
+        token,
+      }).post({
         code,
       });
 
       if (error) {
-        throw new Error(error.message);
+        throw new CustomError(error.value, error.status);
       }
 
       return data;
@@ -38,7 +40,7 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
     },
     onSubmit: async ({ value }) => {
       try {
-        mutation.mutateAsync({
+        await mutation.mutateAsync({
           code: value.code,
         });
 
@@ -51,7 +53,7 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
           });
         }
       } catch (error) {
-        console.error(error);
+        return;
       }
     },
     validatorAdapter: zodValidator,
@@ -74,23 +76,27 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
         children={(field) => {
           return (
             <>
-              <TextInput
-                type="text"
+              <OTPInput
+                maxLength={6}
                 id={field.name}
                 value={field.state.value}
                 onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                label={{
-                  children: "Code",
-                  htmlFor: field.name,
-                  className: cn(
-                    field.state.meta.errors.length > 0 ? "text-error" : "",
-                    "p-1"
-                  ),
-                }}
-                color={field.state.meta.errors.length > 0 ? "error" : "default"}
-                variant="bordered"
-              />
+                onChange={(e) => field.handleChange(e)}
+              >
+                <OTPInput.Group>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <OTPInput.Slot key={index} index={index} />
+                  ))}
+                </OTPInput.Group>
+
+                <OTPInput.Seperator />
+
+                <OTPInput.Group>
+                  {Array.from({ length: 3 }).map((_, index) => (
+                    <OTPInput.Slot key={index} index={index + 3} />
+                  ))}
+                </OTPInput.Group>
+              </OTPInput>
 
               {field.state.meta.isTouched && (
                 <ul>
@@ -120,11 +126,17 @@ const EmailVerificationForm = ({ token }: EmailVerificationFormProps) => {
         }}
       />
 
-      {mutation.error && (
-        <Alert variant="error" className="mt-4">
-          {mutation.error.message}
-        </Alert>
-      )}
+      <div className="mt-2">
+        {mutation.error && (
+          <Alert variant="error">{mutation.error.message}</Alert>
+        )}
+
+        {mutation.isSuccess && mutation.data && (
+          <Alert variant="success">
+            {redirectMessage(mutation.data.message)}
+          </Alert>
+        )}
+      </div>
     </form>
   );
 };
