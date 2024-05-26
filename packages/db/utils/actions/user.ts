@@ -21,11 +21,11 @@ export const getUserById = async (db: Database, userId: string) => {
   const user = result[0];
 
   if (!user) {
-    throw new Error("User not found");
+    throw new CustomError("User not found", 409);
   }
 
   if (!user.emailVerified) {
-    throw new Error("Email not verified");
+    throw new CustomError("Email not verified", 409);
   }
 
   return user;
@@ -43,11 +43,11 @@ export const getUserByEmail = async (db: Database, email: string) => {
   const user = result[0];
 
   if (!user) {
-    throw new Error("User not found");
+    throw new CustomError("User not found", 409);
   }
 
   if (!user.emailVerified) {
-    throw new Error("Email not verified");
+    throw new CustomError("Email not verified", 409);
   }
 
   return user;
