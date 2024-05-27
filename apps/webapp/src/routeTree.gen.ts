@@ -14,7 +14,10 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as OnboardingLayoutImport } from './routes/onboarding/_layout'
 import { Route as AuthLayoutImport } from './routes/auth/_layout'
+import { Route as OnboardingLayoutSubscriptionPlanImport } from './routes/onboarding/_layout/subscription-plan'
+import { Route as OnboardingLayoutAccountInfoImport } from './routes/onboarding/_layout/account-info'
 import { Route as AuthLayoutSignImport } from './routes/auth/_layout/_sign'
 import { Route as AuthLayoutPasswordResetIndexImport } from './routes/auth/_layout/password-reset/index'
 import { Route as AuthLayoutEmailVerificationIndexImport } from './routes/auth/_layout/email-verification/index'
@@ -25,9 +28,15 @@ import { Route as AuthLayoutSignSigninImport } from './routes/auth/_layout/_sign
 
 // Create Virtual Routes
 
+const OnboardingImport = createFileRoute('/onboarding')()
 const AuthImport = createFileRoute('/auth')()
 
 // Create/Update Routes
+
+const OnboardingRoute = OnboardingImport.update({
+  path: '/onboarding',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AuthRoute = AuthImport.update({
   path: '/auth',
@@ -39,10 +48,27 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const OnboardingLayoutRoute = OnboardingLayoutImport.update({
+  id: '/_layout',
+  getParentRoute: () => OnboardingRoute,
+} as any)
+
 const AuthLayoutRoute = AuthLayoutImport.update({
   id: '/_layout',
   getParentRoute: () => AuthRoute,
 } as any)
+
+const OnboardingLayoutSubscriptionPlanRoute =
+  OnboardingLayoutSubscriptionPlanImport.update({
+    path: '/subscription-plan',
+    getParentRoute: () => OnboardingLayoutRoute,
+  } as any)
+
+const OnboardingLayoutAccountInfoRoute =
+  OnboardingLayoutAccountInfoImport.update({
+    path: '/account-info',
+    getParentRoute: () => OnboardingLayoutRoute,
+  } as any)
 
 const AuthLayoutSignRoute = AuthLayoutSignImport.update({
   id: '/_sign',
@@ -108,12 +134,40 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLayoutImport
       parentRoute: typeof AuthRoute
     }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingImport
+      parentRoute: typeof rootRoute
+    }
+    '/onboarding/_layout': {
+      id: '/onboarding/_layout'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingLayoutImport
+      parentRoute: typeof OnboardingRoute
+    }
     '/auth/_layout/_sign': {
       id: '/auth/_layout/_sign'
       path: ''
       fullPath: '/auth'
       preLoaderRoute: typeof AuthLayoutSignImport
       parentRoute: typeof AuthLayoutImport
+    }
+    '/onboarding/_layout/account-info': {
+      id: '/onboarding/_layout/account-info'
+      path: '/account-info'
+      fullPath: '/onboarding/account-info'
+      preLoaderRoute: typeof OnboardingLayoutAccountInfoImport
+      parentRoute: typeof OnboardingLayoutImport
+    }
+    '/onboarding/_layout/subscription-plan': {
+      id: '/onboarding/_layout/subscription-plan'
+      path: '/subscription-plan'
+      fullPath: '/onboarding/subscription-plan'
+      preLoaderRoute: typeof OnboardingLayoutSubscriptionPlanImport
+      parentRoute: typeof OnboardingLayoutImport
     }
     '/auth/_layout/_sign/signin': {
       id: '/auth/_layout/_sign/signin'
@@ -174,6 +228,12 @@ export const routeTree = rootRoute.addChildren({
       AuthLayoutPasswordResetTokenRoute,
       AuthLayoutEmailVerificationIndexRoute,
       AuthLayoutPasswordResetIndexRoute,
+    }),
+  }),
+  OnboardingRoute: OnboardingRoute.addChildren({
+    OnboardingLayoutRoute: OnboardingLayoutRoute.addChildren({
+      OnboardingLayoutAccountInfoRoute,
+      OnboardingLayoutSubscriptionPlanRoute,
     }),
   }),
 })

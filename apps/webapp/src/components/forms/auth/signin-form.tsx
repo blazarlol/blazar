@@ -78,6 +78,8 @@ const SignInForm = () => {
             }
           );
 
+          // TOOD: Check if the user has completed the onboarding process.
+
           router.navigate({
             to: search.redirect || "/",
           });

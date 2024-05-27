@@ -24,6 +24,8 @@ export const Route = createFileRoute("/")({
         throw new Error();
       }
 
+      // TOOD: Check if the user has completed the onboarding process.
+
       return true;
     } catch {
       throw redirect({
