@@ -3,11 +3,12 @@ import { authRoutes } from "./routes/auth";
 import { emailRoutes } from "./routes/email";
 import { treaty } from "@elysiajs/eden";
 import cors from "@elysiajs/cors";
+import { accountRoutes } from "./routes/account";
 
 const app = new Elysia()
   .use(cors())
   .group("/api", (app) => {
-    return app.use(authRoutes).use(emailRoutes);
+    return app.use(authRoutes).use(emailRoutes).use(accountRoutes);
   })
 
   .listen(8080);

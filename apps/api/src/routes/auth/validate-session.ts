@@ -12,13 +12,13 @@ export const validateSession = new Elysia().post(
         throw new CustomError("Session ID is required", 409);
       }
 
-      const { session } = await validateSessionAction(sessionId);
+      const { session, user } = await validateSessionAction(sessionId);
 
       if (!session) {
         throw new CustomError("Session not found", 404);
       }
 
-      return { message: "Session validated successfully.", session };
+      return { message: "Session validated successfully.", session, user };
     } catch (err) {
       if (err instanceof CustomError) {
         return error(err.status, err.message);
