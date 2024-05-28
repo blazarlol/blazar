@@ -12,4 +12,5 @@ export const userTable = pgTable("user", {
   email: text("email").unique().notNull(),
   emailVerified: boolean("email_verified").notNull().default(false),
   passwordHash: text("password_hash").notNull(),
+  onboardingComplete: boolean("onboarding_complete").notNull().default(false),
 });

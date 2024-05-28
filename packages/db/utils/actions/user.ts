@@ -131,3 +131,14 @@ export const changeUserPasswordHash = async (
     .set({ passwordHash })
     .where(eq(userTable.id, userId));
 };
+
+export const changeOnboardingStatus = async (
+  db: Database,
+  userId: string,
+  value: boolean
+) => {
+  await db
+    .update(userTable)
+    .set({ onboardingComplete: value })
+    .where(eq(userTable.id, userId));
+};
