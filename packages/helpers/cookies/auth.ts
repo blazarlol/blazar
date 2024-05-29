@@ -11,3 +11,5 @@ export const createAuthSessionCookie = (
 export const getAuthSessionCookie = (name: string) => {
   return getCookie(name);
 };
+
+export { type CookieValueTypes } from "cookies-next";
