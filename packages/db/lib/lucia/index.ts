@@ -1,4 +1,9 @@
-import { Lucia, TimeSpan } from "lucia";
+import {
+  type DatabaseUserAttributes,
+  type DatabaseSessionAttributes,
+  Lucia,
+  TimeSpan,
+} from "lucia";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
 import { establishDatabaseHTTPConnection } from "../../utils/actions/connection";
 import { sessionTable } from "../drizzle/schema/session";
@@ -16,6 +21,16 @@ const initializeLucia = async () => {
       },
     },
     sessionExpiresIn: new TimeSpan(2, "w"),
+    getUserAttributes: (attributes) => {
+      return {
+        id: attributes.id,
+        emailVerified: attributes.emailVerified,
+        onboardingComplete: attributes.onboardingComplete,
+      };
+    },
+    getSessionAttributes: (attributes) => {
+      return {};
+    },
   });
 
   return lucia;
@@ -26,14 +41,17 @@ export const lucia = await initializeLucia();
 declare module "lucia" {
   export interface Register {
     Lucia: typeof lucia;
-    // DatabaseSessionAttributes: DatabaseSessionAttributes;
+    DatabaseUserAttributes: DatabaseUserAttributes;
+    DatabaseSessionAttributes: DatabaseSessionAttributes;
   }
 
-  // interface DatabaseSessionAttributes {
-  //   country: string;
-  // }
+  interface DatabaseUserAttributes {
+    id: string;
+    emailVerified: boolean;
+    onboardingComplete: boolean;
+  }
 
-  // interface Session {
-  //   uuid: string;
-  // }
+  interface DatabaseSessionAttributes {}
 }
+
+export { type DatabaseUserAttributes, type DatabaseSessionAttributes };

@@ -1,7 +1,13 @@
 import { lucia } from ".";
 
-export const createSession = async (userId: string, country: string) => {
-  const session = await lucia.createSession(userId, { country });
+export const createSession = async (userId: string, id: string) => {
+  const session = await lucia.createSession(
+    userId,
+    {},
+    {
+      sessionId: id,
+    }
+  );
 
   let sessionCookie;
 

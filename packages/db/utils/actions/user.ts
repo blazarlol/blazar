@@ -53,6 +53,23 @@ export const getUserByEmail = async (db: Database, email: string) => {
   return user;
 };
 
+export const getUserOnboardingStatus = async (db: Database, userId: string) => {
+  const result = await db
+    .select({
+      onboardingComplete: userTable.onboardingComplete,
+    })
+    .from(userTable)
+    .where(eq(userTable.id, userId));
+
+  const user = result[0];
+
+  if (!user) {
+    throw new CustomError("User not found", 409);
+  }
+
+  return user.onboardingComplete;
+};
+
 export const createUser = async (
   db: Database,
   {
@@ -91,6 +108,7 @@ export const validateUser = async (
       email: userTable.email,
       passwordHash: userTable.passwordHash,
       emailVerified: userTable.emailVerified,
+      onboardingComplete: userTable.onboardingComplete,
     })
     .from(userTable)
     .where(eq(userTable.email, email));
