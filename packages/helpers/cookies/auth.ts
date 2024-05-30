@@ -1,4 +1,4 @@
-import { setCookie, getCookie } from "cookies-next";
+import { setCookie, getCookie, deleteCookie } from "cookies-next";
 
 export const createAuthSessionCookie = (
   name: string,
@@ -12,4 +12,6 @@ export const getAuthSessionCookie = (name: string) => {
   return getCookie(name);
 };
 
-export { type CookieValueTypes } from "cookies-next";
+export const removeAuthSessionCookie = (name: string) => {
+  return deleteCookie(name, { path: "/" });
+};
