@@ -1,9 +1,14 @@
 import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
-import { validateSessionCookie } from "../../utils/session";
-import { getAuthSessionCookie } from "@blazar/helpers";
-import { apiTreaty } from "@blazar/elysia";
+
+import { useAuth } from "../../auth";
 
 const AuthLayout = () => {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex justify-center items-center h-screen">
       <Outlet />
@@ -13,23 +18,13 @@ const AuthLayout = () => {
 
 export const Route = createFileRoute("/auth/_layout")({
   component: AuthLayout,
-  beforeLoad: async () => {
-    const authSessionCookie = getAuthSessionCookie("auth_session");
+  beforeLoad: async ({ context }) => {
+    const { session, loading } = context.auth;
 
-    if (!authSessionCookie) {
-      return;
+    if (!loading && session) {
+      throw redirect({
+        to: "/",
+      });
     }
-
-    const { error } = await apiTreaty.api.auth["validate-session"].post({
-      sessionId: authSessionCookie,
-    });
-
-    if (error) {
-      return;
-    }
-
-    throw redirect({
-      to: "/",
-    });
   },
 });

@@ -1,54 +1,42 @@
-import { apiTreaty } from "@blazar/elysia";
-import { getAuthSessionCookie } from "@blazar/helpers";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
+import { useAuth } from "../../auth";
 
 const Index = () => {
-  return <div>Hello /onboarding/_layout!</div>;
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      Hello /onboarding/_layout!
+      <Outlet />
+    </div>
+  );
 };
 
 export const Route = createFileRoute("/onboarding/_layout")({
   component: Index,
-  beforeLoad: async () => {
-    const authSessionCookie = getAuthSessionCookie("auth_session");
+  beforeLoad: async ({ context }) => {
+    const { session, user, loading } = context.auth;
 
-    if (!authSessionCookie) {
+    if (loading) {
+      return false;
+    }
+
+    if (!session || !user || !user.emailVerified) {
       throw redirect({
         to: "/auth/signin",
       });
     }
 
-    const { data: sessionData, error: sessionError } = await apiTreaty.api.auth[
-      "validate-session"
-    ].post({
-      sessionId: authSessionCookie,
-    });
-
-    if (sessionError) {
+    if (user.onboardingComplete) {
       throw redirect({
-        to: "/auth/signin",
-      });
-    }
-
-    const { user } = sessionData;
-
-    const { data: userData, error: userError } = await apiTreaty.api
-      .account({ userId: user!.id })
-      .get();
-
-    if (userError) {
-      throw redirect({
-        to: "/auth/signin",
-      });
-    }
-
-    // TODO: Redirect to dashboard based on the onboarding-completed field.
-    if (userData.account.userName) {
-      throw redirect({
-        // TODO: Redirect to the subscription plan page.
         to: "/",
       });
     }
 
-    // TODO: If the user has not completed the onboarding process, redirect to the next available step.
+    return true;
   },
 });

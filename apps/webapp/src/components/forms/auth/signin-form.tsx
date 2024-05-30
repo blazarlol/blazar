@@ -2,11 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { TextInput } from "../../ui/data-input/text-input";
 import { Button } from "../../ui/actions/button";
-import {
-  EmailSchema,
-  PasswordSchema,
-  simplePasswordSchema,
-} from "../../../libs/zod/schema";
+import { EmailSchema, simplePasswordSchema } from "../../../libs/zod/schema";
 import { Link, useRouter, useSearch } from "@tanstack/react-router";
 import { apiTreaty } from "@blazar/elysia";
 import { CustomError, createAuthSessionCookie } from "@blazar/helpers";
@@ -15,8 +11,10 @@ import { cn } from "../../../utils/styles";
 import { Alert } from "../../ui/feedback/alert";
 import { Label } from "../../ui/data-input/label";
 import { redirectMessage } from "../../../utils/message";
+import { useAuth } from "../../../auth";
 
 const SignInForm = () => {
+  const auth = useAuth();
   const router = useRouter();
   const search = useSearch({
     from: "/auth/_layout/_sign/signin",
@@ -78,7 +76,7 @@ const SignInForm = () => {
             }
           );
 
-          // TOOD: Check if the user has completed the onboarding process.
+          await auth.updateAuthState();
 
           router.navigate({
             to: search.redirect || "/",

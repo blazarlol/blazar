@@ -13,10 +13,12 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
+import { Route as AppImport } from './routes/_app'
+import { Route as AppIndexImport } from './routes/_app/index'
 import { Route as OnboardingLayoutImport } from './routes/onboarding/_layout'
 import { Route as AuthLayoutImport } from './routes/auth/_layout'
 import { Route as OnboardingLayoutSubscriptionPlanImport } from './routes/onboarding/_layout/subscription-plan'
+import { Route as OnboardingLayoutFinishImport } from './routes/onboarding/_layout/finish'
 import { Route as OnboardingLayoutAccountInfoImport } from './routes/onboarding/_layout/account-info'
 import { Route as AuthLayoutSignImport } from './routes/auth/_layout/_sign'
 import { Route as AuthLayoutPasswordResetIndexImport } from './routes/auth/_layout/password-reset/index'
@@ -43,9 +45,14 @@ const AuthRoute = AuthImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const IndexRoute = IndexImport.update({
-  path: '/',
+const AppRoute = AppImport.update({
+  id: '/_app',
   getParentRoute: () => rootRoute,
+} as any)
+
+const AppIndexRoute = AppIndexImport.update({
+  path: '/',
+  getParentRoute: () => AppRoute,
 } as any)
 
 const OnboardingLayoutRoute = OnboardingLayoutImport.update({
@@ -63,6 +70,11 @@ const OnboardingLayoutSubscriptionPlanRoute =
     path: '/subscription-plan',
     getParentRoute: () => OnboardingLayoutRoute,
   } as any)
+
+const OnboardingLayoutFinishRoute = OnboardingLayoutFinishImport.update({
+  path: '/finish',
+  getParentRoute: () => OnboardingLayoutRoute,
+} as any)
 
 const OnboardingLayoutAccountInfoRoute =
   OnboardingLayoutAccountInfoImport.update({
@@ -113,11 +125,11 @@ const AuthLayoutSignSigninRoute = AuthLayoutSignSigninImport.update({
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AppImport
       parentRoute: typeof rootRoute
     }
     '/auth': {
@@ -148,6 +160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OnboardingLayoutImport
       parentRoute: typeof OnboardingRoute
     }
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexImport
+      parentRoute: typeof AppImport
+    }
     '/auth/_layout/_sign': {
       id: '/auth/_layout/_sign'
       path: ''
@@ -160,6 +179,13 @@ declare module '@tanstack/react-router' {
       path: '/account-info'
       fullPath: '/onboarding/account-info'
       preLoaderRoute: typeof OnboardingLayoutAccountInfoImport
+      parentRoute: typeof OnboardingLayoutImport
+    }
+    '/onboarding/_layout/finish': {
+      id: '/onboarding/_layout/finish'
+      path: '/finish'
+      fullPath: '/onboarding/finish'
+      preLoaderRoute: typeof OnboardingLayoutFinishImport
       parentRoute: typeof OnboardingLayoutImport
     }
     '/onboarding/_layout/subscription-plan': {
@@ -217,7 +243,7 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 export const routeTree = rootRoute.addChildren({
-  IndexRoute,
+  AppRoute: AppRoute.addChildren({ AppIndexRoute }),
   AuthRoute: AuthRoute.addChildren({
     AuthLayoutRoute: AuthLayoutRoute.addChildren({
       AuthLayoutSignRoute: AuthLayoutSignRoute.addChildren({
@@ -233,9 +259,111 @@ export const routeTree = rootRoute.addChildren({
   OnboardingRoute: OnboardingRoute.addChildren({
     OnboardingLayoutRoute: OnboardingLayoutRoute.addChildren({
       OnboardingLayoutAccountInfoRoute,
+      OnboardingLayoutFinishRoute,
       OnboardingLayoutSubscriptionPlanRoute,
     }),
   }),
 })
 
 /* prettier-ignore-end */
+
+/* ROUTE_MANIFEST_START
+{
+  "routes": {
+    "__root__": {
+      "filePath": "__root.tsx",
+      "children": [
+        "/_app",
+        "/auth",
+        "/onboarding"
+      ]
+    },
+    "/_app": {
+      "filePath": "_app.tsx",
+      "children": [
+        "/_app/"
+      ]
+    },
+    "/auth": {
+      "filePath": "auth",
+      "children": [
+        "/auth/_layout"
+      ]
+    },
+    "/auth/_layout": {
+      "filePath": "auth/_layout.tsx",
+      "parent": "/auth",
+      "children": [
+        "/auth/_layout/_sign",
+        "/auth/_layout/email-verification/$token",
+        "/auth/_layout/password-reset/$token",
+        "/auth/_layout/email-verification/",
+        "/auth/_layout/password-reset/"
+      ]
+    },
+    "/onboarding": {
+      "filePath": "onboarding",
+      "children": [
+        "/onboarding/_layout"
+      ]
+    },
+    "/onboarding/_layout": {
+      "filePath": "onboarding/_layout.tsx",
+      "parent": "/onboarding",
+      "children": [
+        "/onboarding/_layout/account-info",
+        "/onboarding/_layout/finish",
+        "/onboarding/_layout/subscription-plan"
+      ]
+    },
+    "/_app/": {
+      "filePath": "_app/index.tsx",
+      "parent": "/_app"
+    },
+    "/auth/_layout/_sign": {
+      "filePath": "auth/_layout/_sign.tsx",
+      "parent": "/auth/_layout",
+      "children": [
+        "/auth/_layout/_sign/signin",
+        "/auth/_layout/_sign/signup"
+      ]
+    },
+    "/onboarding/_layout/account-info": {
+      "filePath": "onboarding/_layout/account-info.tsx",
+      "parent": "/onboarding/_layout"
+    },
+    "/onboarding/_layout/finish": {
+      "filePath": "onboarding/_layout/finish.tsx",
+      "parent": "/onboarding/_layout"
+    },
+    "/onboarding/_layout/subscription-plan": {
+      "filePath": "onboarding/_layout/subscription-plan.tsx",
+      "parent": "/onboarding/_layout"
+    },
+    "/auth/_layout/_sign/signin": {
+      "filePath": "auth/_layout/_sign/signin.tsx",
+      "parent": "/auth/_layout/_sign"
+    },
+    "/auth/_layout/_sign/signup": {
+      "filePath": "auth/_layout/_sign/signup.tsx",
+      "parent": "/auth/_layout/_sign"
+    },
+    "/auth/_layout/email-verification/$token": {
+      "filePath": "auth/_layout/email-verification/$token.tsx",
+      "parent": "/auth/_layout"
+    },
+    "/auth/_layout/password-reset/$token": {
+      "filePath": "auth/_layout/password-reset/$token.tsx",
+      "parent": "/auth/_layout"
+    },
+    "/auth/_layout/email-verification/": {
+      "filePath": "auth/_layout/email-verification/index.tsx",
+      "parent": "/auth/_layout"
+    },
+    "/auth/_layout/password-reset/": {
+      "filePath": "auth/_layout/password-reset/index.tsx",
+      "parent": "/auth/_layout"
+    }
+  }
+}
+ROUTE_MANIFEST_END */

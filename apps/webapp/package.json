@@ -15,7 +15,7 @@
     "@blazar/helpers": "workspace:packages/helpers",
     "@tanstack/react-form": "^0.19.5",
     "@tanstack/react-query": "^5.36.1",
-    "@tanstack/react-router": "^1.32.5",
+    "@tanstack/react-router": "^1.34.7",
     "@tanstack/react-table": "^8.17.3",
     "@tanstack/zod-form-adapter": "^0.19.5",
     "@uidotdev/usehooks": "^2.4.1",
@@ -24,8 +24,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@tanstack/router-devtools": "^1.32.5",
-    "@tanstack/router-vite-plugin": "^1.32.2",
+    "@tanstack/router-devtools": "^1.34.7",
+    "@tanstack/router-vite-plugin": "^1.34.1",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",

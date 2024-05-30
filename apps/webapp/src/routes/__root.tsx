@@ -1,11 +1,26 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { AuthContext } from "../auth";
 
-export const Route = createRootRoute({
+interface RouterContext {
+  auth: AuthContext;
+}
+
+// TODO: Create context for the session.
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <>
       <Outlet />
-      {/* <TanStackRouterDevtools /> */}
+      <TanStackRouterDevtools />
     </>
   ),
+  beforeLoad: async ({ context }) => {
+    const { loading } = context.auth;
+
+    if (!loading) {
+      return false;
+    }
+
+    return true;
+  },
 });
