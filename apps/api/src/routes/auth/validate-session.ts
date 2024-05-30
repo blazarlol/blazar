@@ -15,7 +15,7 @@ export const validateSession = new Elysia().post(
       const { session, user } = await validateSessionAction(sessionId);
 
       if (!session) {
-        throw new CustomError("Session not found", 404);
+        throw new CustomError("Session not found", 409);
       }
 
       return { message: "Session validated successfully.", session, user };

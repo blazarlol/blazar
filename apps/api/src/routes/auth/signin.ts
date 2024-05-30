@@ -3,7 +3,7 @@ import {
   establishDatabasePoolConnection,
   validateUser,
 } from "@blazar/db";
-import { CustomError } from "@blazar/helpers";
+import { CustomError, generateId } from "@blazar/helpers";
 import Elysia, { error, t } from "elysia";
 
 export const signIn = new Elysia().post(
@@ -20,7 +20,7 @@ export const signIn = new Elysia().post(
 
       const user = await validateUser(db, { email, password });
 
-      const session = await createSession(user.id, "pl");
+      const session = await createSession(user.id, await generateId());
 
       pool.end();
       return {
